@@ -1,0 +1,7 @@
+aggregator:
+  name: "films_aggregator"
+reindexer:
+  name: "reindexer"
+  port: 9088
+  cache_time: 15M
+
