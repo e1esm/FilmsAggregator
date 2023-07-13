@@ -1,0 +1,12 @@
+version: "3"
+services:
+  reindexer:
+    container_name: reindexer
+    image: reindexer@sha256:17fc2a6338e346c459700aa26b650c6f047d4d06e86366a89d1e83d79fc69bf8
+  aggregator:
+    container_name: films_aggregator
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
