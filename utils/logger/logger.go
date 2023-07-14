@@ -10,11 +10,12 @@ import (
 var Logger zap.Logger
 
 func init() {
-	Logger = NewZapLogger()
+	Logger = newZapLogger()
 }
 
-func NewZapLogger() zap.Logger {
+func newZapLogger() zap.Logger {
 	config := zap.NewDevelopmentEncoderConfig()
+
 	config.EncodeTime = zapcore.ISO8601TimeEncoder
 	fileEncoder := zapcore.NewJSONEncoder(config)
 

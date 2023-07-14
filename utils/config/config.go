@@ -1,9 +1,14 @@
 package config
 
 import (
+	"github.com/e1esm/FilmsAggregator/utils/logger"
+	"go.uber.org/zap"
 	"gopkg.in/yaml.v2"
-	"log"
 	"os"
+)
+
+const (
+	confFile = "conf.yml"
 )
 
 type Config struct {
@@ -18,15 +23,18 @@ type Config struct {
 }
 
 func NewConfig() *Config {
-	fileContent, err := os.ReadFile("conf.yml")
+	fileContent, err := os.ReadFile(confFile)
 	if err != nil {
-		log.Println("Couldn't have read file")
+		logger.Logger.Error("Couldn't have read the file",
+			zap.String("err", err.Error()),
+			zap.String("filename", confFile))
 		return nil
 	}
 	cfg := &Config{}
 	err = yaml.Unmarshal(fileContent, cfg)
 	if err != nil {
-		log.Println("Couldn't have unmarshalled utils")
+		logger.Logger.Error("Couldn't have unmarshalled content of file",
+			zap.String("filename", confFile), zap.String("err", err.Error()))
 		return nil
 	}
 	return cfg
