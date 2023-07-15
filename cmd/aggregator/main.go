@@ -8,4 +8,5 @@ import (
 func main() {
 	cfg := config.NewConfig()
 	fmt.Println(cfg.Aggregator.Name)
+
 }

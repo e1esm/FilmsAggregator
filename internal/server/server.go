@@ -11,8 +11,13 @@ type Builder struct {
 }
 
 func NewBuilder() *Builder {
-	builder := &Builder{server: nil}
+	builder := &Builder{server: &AggregatorServer{}}
 	return builder
+}
+
+func (b *Builder) WithEndpoint(endpoint string, handlerFunc http.HandlerFunc) *Builder {
+	b.server.router.HandleFunc(endpoint, handlerFunc)
+	return b
 }
 
 func (b *Builder) WithRouter(mux *http.ServeMux) *Builder {
