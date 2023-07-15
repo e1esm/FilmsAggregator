@@ -10,7 +10,6 @@ import (
 )
 
 func (s *AggregatorServer) AddFilm(w http.ResponseWriter, r *http.Request) {
-
 	if r.Method != http.MethodPost {
 		logger.Logger.Error("Another method was used on this URL",
 			zap.String("url", r.URL.String()))

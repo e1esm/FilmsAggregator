@@ -12,7 +12,6 @@ func main() {
 	currServer := configureServer()
 	log.Fatal(http.ListenAndServe(cfg.Aggregator.Address+cfg.Aggregator.Port,
 		currServer.Router))
-
 }
 
 func configureServer() *server.AggregatorServer {
