@@ -1,5 +1,7 @@
 aggregator:
   name: "films_aggregator"
+  port: ":8080"
+  address: "localhost"
 reindexer:
   name: "reindexer"
   port: 9088

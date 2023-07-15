@@ -13,7 +13,9 @@ const (
 
 type Config struct {
 	Aggregator struct {
-		Name string `yaml:"name"`
+		Name    string `yaml:"name"`
+		Port    string `yaml:"port"`
+		Address string `yaml:"address"`
 	} `yaml:"aggregator"`
 	DBCOnnection struct {
 		Name string `yaml:"name"`

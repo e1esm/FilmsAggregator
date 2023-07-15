@@ -3,25 +3,25 @@ package server
 import "net/http"
 
 type AggregatorServer struct {
-	router *http.ServeMux
+	Router *http.ServeMux
 }
 
 type Builder struct {
-	server *AggregatorServer
+	Server *AggregatorServer
 }
 
 func NewBuilder() *Builder {
-	builder := &Builder{server: &AggregatorServer{}}
+	builder := &Builder{Server: &AggregatorServer{}}
 	return builder
 }
 
 func (b *Builder) WithEndpoint(endpoint string, handlerFunc http.HandlerFunc) *Builder {
-	b.server.router.HandleFunc(endpoint, handlerFunc)
+	b.Server.Router.HandleFunc(endpoint, handlerFunc)
 	return b
 }
 
 func (b *Builder) WithRouter(mux *http.ServeMux) *Builder {
-	b.server.router = mux
+	b.Server.Router = mux
 	return b
 }
 
@@ -31,5 +31,5 @@ func (b *Builder) WithService() *Builder {
 }
 
 func (b *Builder) Build() *AggregatorServer {
-	return b.server
+	return b.Server
 }
