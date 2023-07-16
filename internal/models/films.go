@@ -1,10 +1,13 @@
 package models
 
+import "github.com/google/uuid"
+
 type Film struct {
-	Title        string  `json:"title"`
-	Crew         Crew    `json:"crew"`
-	ReleasedYear int     `json:"released_year"`
-	Revenue      float64 `json:"revenue"`
+	ID           uuid.UUID `json:"id,omitempty"`
+	Title        string    `json:"title"`
+	Crew         Crew      `json:"crew"`
+	ReleasedYear int       `json:"released_year"`
+	Revenue      float64   `json:"revenue"`
 }
 
 type Crew struct {
@@ -13,9 +16,10 @@ type Crew struct {
 }
 
 type Person struct {
-	Name      string `json:"name"`
-	Birthdate string `json:"birthdate"`
-	Gender    string `json:"gender"`
+	ID        uuid.UUID `json:"id,omitempty"`
+	Name      string    `json:"name"`
+	Birthdate string    `json:"birthdate"`
+	Gender    string    `json:"gender"`
 }
 
 type Producer struct {
