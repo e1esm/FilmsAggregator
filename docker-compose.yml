@@ -1,12 +1,19 @@
 version: "3"
 services:
   reindexer:
-    container_name: ${DB_NAME}
+    container_name: "reindexer"
     image: reindexer/reindexer:latest
   aggregator:
-    container_name: ${AGGREGATOR_NAME}
+    container_name: "server"
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: server.Dockerfile
     ports:
       - "8080:8080"
+  postgres:
+    container_name: "postgres"
+    build:
+      context: .
+      dockerfile: postgres.Dockerfile
+    env_file:
+      - postgres.env

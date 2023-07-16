@@ -1,9 +1,15 @@
 aggregator:
   name: "films_aggregator"
-  port: ":8080"
+  port: 8080
   address: "localhost"
 reindexer:
   name: "reindexer"
   port: 9088
   cache_time: 15M
+postgres:
+  container_name: "postgres"
+  port: 5432
+  user: "postgres"
+  database_name: "films_aggregator"
+  password: "postgres"
 

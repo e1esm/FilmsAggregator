@@ -14,14 +14,21 @@ const (
 type Config struct {
 	Aggregator struct {
 		Name    string `yaml:"name"`
-		Port    string `yaml:"port"`
+		Port    int    `yaml:"port"`
 		Address string `yaml:"address"`
 	} `yaml:"aggregator"`
-	DBCOnnection struct {
+	Reindexer struct {
 		Name string `yaml:"name"`
 		Port int    `yaml:"port"`
 	} `yaml:"reindexer"`
 	CacheTime string `yaml:"cache_time"`
+	Postgres  struct {
+		ContainerName string `yaml:"container_name"`
+		Port          int    `json:"port"`
+		User          string `json:"user"`
+		DatabaseName  string `json:"database_name"`
+		Password      string `json:"password"`
+	} `yaml:"postgres"`
 }
 
 func NewConfig() *Config {
