@@ -9,8 +9,12 @@ type Repository interface {
 	Add(film models.Film) uuid.UUID
 }
 
+type Cache interface {
+	Repository
+}
+
 type Repositories struct {
-	CacheRepo *Repository
+	CacheRepo *Cache
 	MainRepo  *Repository
 }
 
@@ -28,7 +32,7 @@ func (rb *RepositoriesBuilder) WithMainRepo(repository *Repository) *Repositorie
 	return rb
 }
 
-func (rb *RepositoriesBuilder) WithCacheRepo(repository *Repository) *RepositoriesBuilder {
+func (rb *RepositoriesBuilder) WithCacheRepo(repository *Cache) *RepositoriesBuilder {
 	rb.Repositories.CacheRepo = repository
 	return rb
 }
