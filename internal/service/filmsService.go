@@ -6,9 +6,9 @@ type Service interface {
 }
 
 type FilmsService struct {
-	Repositories repository.Repositories
+	Repositories *repository.Repositories
 }
 
-func NewRepository(repositories repository.Repositories) *FilmsService {
+func NewService(repositories *repository.Repositories) *FilmsService {
 	return &FilmsService{Repositories: repositories}
 }

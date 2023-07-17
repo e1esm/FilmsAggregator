@@ -14,8 +14,8 @@ type Cache interface {
 }
 
 type Repositories struct {
-	CacheRepo *Cache
-	MainRepo  *Repository
+	CacheRepo Cache
+	MainRepo  Repository
 }
 
 type RepositoriesBuilder struct {
@@ -27,12 +27,12 @@ func NewRepositoriesBuilder() *RepositoriesBuilder {
 	return &reposBuilder
 }
 
-func (rb *RepositoriesBuilder) WithMainRepo(repository *Repository) *RepositoriesBuilder {
+func (rb *RepositoriesBuilder) WithMainRepo(repository Repository) *RepositoriesBuilder {
 	rb.Repositories.MainRepo = repository
 	return rb
 }
 
-func (rb *RepositoriesBuilder) WithCacheRepo(repository *Cache) *RepositoriesBuilder {
+func (rb *RepositoriesBuilder) WithCacheRepo(repository Cache) *RepositoriesBuilder {
 	rb.Repositories.CacheRepo = repository
 	return rb
 }

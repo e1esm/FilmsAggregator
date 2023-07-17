@@ -1,17 +1,21 @@
 package server
 
-import "net/http"
+import (
+	"github.com/e1esm/FilmsAggregator/internal/service"
+	"net/http"
+)
 
 type AggregatorServer struct {
 	Router *http.ServeMux
 }
 
 type Builder struct {
-	Server *AggregatorServer
+	Server       *AggregatorServer
+	FilmsService service.Service
 }
 
 func NewBuilder() *Builder {
-	builder := &Builder{Server: &AggregatorServer{}}
+	builder := &Builder{Server: &AggregatorServer{}, FilmsService: nil}
 	return builder
 }
 
@@ -25,8 +29,8 @@ func (b *Builder) WithRouter(mux *http.ServeMux) *Builder {
 	return b
 }
 
-func (b *Builder) WithService() *Builder {
-	//b.server.service = serviceName
+func (b *Builder) WithService(service service.Service) *Builder {
+	b.FilmsService = service
 	return b
 }
 
