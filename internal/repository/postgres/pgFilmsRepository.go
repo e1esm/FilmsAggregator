@@ -15,7 +15,7 @@ type FilmsRepository struct {
 }
 
 func NewFilmsRepository(cfg config.Config) *FilmsRepository {
-	dbUrl := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s",
+	dbUrl := fmt.Sprintf("postgresql://%s:%s@%s:%d/%s",
 		cfg.Postgres.User,
 		cfg.Postgres.Password,
 		cfg.Postgres.ContainerName,

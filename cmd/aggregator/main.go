@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/e1esm/FilmsAggregator/internal/repository"
 	"github.com/e1esm/FilmsAggregator/internal/server"
+	"github.com/e1esm/FilmsAggregator/internal/service"
 	"github.com/e1esm/FilmsAggregator/utils/config"
 	"log"
 	"net/http"
@@ -25,4 +27,12 @@ func configureServer() *server.AggregatorServer {
 		WithEndpoint("/api/add/", sb.Server.AddFilm).
 		Build()
 	return aggServ
+}
+
+func configureRepositories() *repository.Repositories {
+
+}
+
+func configureService() *service.FilmsService {
+
 }
