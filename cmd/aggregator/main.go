@@ -9,8 +9,10 @@ import (
 )
 
 func main() {
+
 	cfg := config.NewConfig()
 	currServer := configureServer()
+
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d",
 		cfg.Aggregator.Address,
 		cfg.Aggregator.Port),

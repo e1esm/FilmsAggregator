@@ -11,6 +11,9 @@ FROM scratch
 WORKDIR /
 
 COPY --from=builder /aggregator /aggregator
+COPY --from=builder /app/conf.yml /conf.yml
+
+EXPOSE 8080
 
 CMD ["/aggregator"]
 
