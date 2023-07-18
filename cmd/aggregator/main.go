@@ -32,7 +32,7 @@ func configureServer(service service.Service) *server.AggregatorServer {
 
 func configureRepositories(config *config.Config) *repository.Repositories {
 	mainRepo := repository.NewRepositoriesBuilder().
-		WithMainRepo(postgres.NewFilmsRepository(*config)).
+		WithMainRepo(postgres.NewFilmsRepository(*config, postgres.NewTransactionManager())).
 		Build()
 
 	return mainRepo
