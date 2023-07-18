@@ -7,7 +7,7 @@ import (
 	"github.com/e1esm/FilmsAggregator/internal/repository"
 	"github.com/e1esm/FilmsAggregator/utils/config"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
-	"github.com/google/uuid"
+	"github.com/e1esm/FilmsAggregator/utils/uuid"
 	"github.com/jackc/pgx/v5"
 	"go.uber.org/zap"
 )
@@ -31,7 +31,8 @@ func NewFilmsRepository(cfg config.Config) repository.Repository {
 }
 
 func (fr *FilmsRepository) Add(ctx context.Context, film *models.Film) (models.Film, error) {
-	fr.generateUUIDs(film)
+	uuid.GenerateUUIDs(film)
+
 	tx, err := fr.DB.Begin(ctx)
 	defer tx.Rollback(ctx)
 	if err != nil {
@@ -51,14 +52,4 @@ func (fr *FilmsRepository) Add(ctx context.Context, film *models.Film) (models.F
 		return models.Film{}, err
 	}
 	return *film, nil
-}
-
-func (fr *FilmsRepository) generateUUIDs(film *models.Film) {
-	film.ID = uuid.New()
-	for i := 0; i < len(film.Crew.Producers); i++ {
-		film.Crew.Producers[i].ID = uuid.New()
-	}
-	for i := 0; i < len(film.Crew.Actors); i++ {
-		film.Crew.Actors[i].ID = uuid.New()
-	}
 }
