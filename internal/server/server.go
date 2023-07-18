@@ -6,16 +6,16 @@ import (
 )
 
 type AggregatorServer struct {
-	Router *http.ServeMux
-}
-
-type Builder struct {
-	Server       *AggregatorServer
+	Router       *http.ServeMux
 	FilmsService service.Service
 }
 
+type Builder struct {
+	Server *AggregatorServer
+}
+
 func NewBuilder() *Builder {
-	builder := &Builder{Server: &AggregatorServer{}, FilmsService: nil}
+	builder := &Builder{Server: &AggregatorServer{}}
 	return builder
 }
 
@@ -30,7 +30,7 @@ func (b *Builder) WithRouter(mux *http.ServeMux) *Builder {
 }
 
 func (b *Builder) WithService(service service.Service) *Builder {
-	b.FilmsService = service
+	b.Server.FilmsService = service
 	return b
 }
 
