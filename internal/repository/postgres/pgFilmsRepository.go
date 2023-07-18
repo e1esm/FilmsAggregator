@@ -30,6 +30,6 @@ func NewFilmsRepository(cfg config.Config) repository.Repository {
 	return &FilmsRepository{DB: db}
 }
 
-func (fr *FilmsRepository) Add(film models.Film) uuid.UUID {
+func (fr *FilmsRepository) Add(ctx context.Context, film models.Film) uuid.UUID {
 	return uuid.New()
 }

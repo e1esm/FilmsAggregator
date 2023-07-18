@@ -5,12 +5,16 @@ CREATE TABLE film(
     revenue FLOAT8 NOT NULL
 );
 
+CREATE index idx_film_title ON film(title);
+
 CREATE TABLE producer(
     id uuid PRIMARY KEY ,
     name VARCHAR(255) NOT NULL,
     birthdate DATE not null,
     gender VARCHAR(1) NOT NULL
 );
+
+CREATE index idx_producer_name on producer(name);
 
 CREATE TABLE actor(
     id uuid PRIMARY KEY ,
@@ -19,6 +23,8 @@ CREATE TABLE actor(
     gender VARCHAR(1) NOT NULL,
     role VARCHAR(255) NOT NULL
 );
+
+CREATE index idx_actor_name on actor(name);
 
 
 CREATE TABLE crew(
@@ -30,3 +36,4 @@ CREATE TABLE crew(
     FOREIGN KEY (producer_id) REFERENCES producer(id),
     FOREIGN KEY (film_id) REFERENCES film(id)
 );
+

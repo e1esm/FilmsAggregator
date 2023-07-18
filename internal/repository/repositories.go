@@ -1,12 +1,12 @@
 package repository
 
 import (
+	"context"
 	"github.com/e1esm/FilmsAggregator/internal/models"
-	"github.com/google/uuid"
 )
 
 type Repository interface {
-	Add(film models.Film) uuid.UUID
+	Add(context.Context, models.Film) (models.Film, error)
 }
 
 type Cache interface {
