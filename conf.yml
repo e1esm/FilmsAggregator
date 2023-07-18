@@ -12,4 +12,5 @@ postgres:
   user: postgres
   database_name: films_aggregator
   password: postgres
+  connections: 100
 

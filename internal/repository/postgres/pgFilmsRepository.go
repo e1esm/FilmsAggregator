@@ -8,32 +8,33 @@ import (
 	"github.com/e1esm/FilmsAggregator/utils/config"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
 	"github.com/e1esm/FilmsAggregator/utils/uuid"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 )
 
 type FilmsRepository struct {
-	DB *pgx.Conn
+	Pool *pgxpool.Pool
 }
 
 func NewFilmsRepository(cfg config.Config) repository.Repository {
-	dbUrl := fmt.Sprintf("postgresql://%s:%s@%s:%d/%s",
+	dbUrl := fmt.Sprintf("postgresql://%s:%s@%s:%d/%s?pool_max_conns=%d",
 		cfg.Postgres.User,
 		cfg.Postgres.Password,
 		cfg.Postgres.ContainerName,
 		cfg.Postgres.Port,
-		cfg.Postgres.DatabaseName)
-	db, err := pgx.Connect(context.Background(), dbUrl)
+		cfg.Postgres.DatabaseName,
+		cfg.Postgres.Connections)
+	pool, err := pgxpool.New(context.Background(), dbUrl)
 	if err != nil {
 		logger.Logger.Fatal("Couldn't have opened connection with DB", zap.String("err", err.Error()))
 	}
-	return &FilmsRepository{DB: db}
+	return &FilmsRepository{Pool: pool}
 }
 
 func (fr *FilmsRepository) Add(ctx context.Context, film *models.Film) (models.Film, error) {
 	uuid.GenerateUUIDs(film)
 
-	tx, err := fr.DB.Begin(ctx)
+	tx, err := fr.Pool.Begin(ctx)
 	defer tx.Rollback(ctx)
 	if err != nil {
 		logger.Logger.Error("Couldn't have started transaction", zap.String("err", err.Error()))

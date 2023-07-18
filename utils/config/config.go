@@ -28,6 +28,7 @@ type Config struct {
 		User          string `yaml:"user"`
 		DatabaseName  string `yaml:"database_name"`
 		Password      string `yaml:"password"`
+		Connections   int    `yaml:"connections"`
 	} `yaml:"postgres"`
 }
 
