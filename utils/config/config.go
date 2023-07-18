@@ -24,10 +24,10 @@ type Config struct {
 	CacheTime string `yaml:"cache_time"`
 	Postgres  struct {
 		ContainerName string `yaml:"container_name"`
-		Port          int    `json:"port"`
-		User          string `json:"user"`
-		DatabaseName  string `json:"database_name"`
-		Password      string `json:"password"`
+		Port          int    `yaml:"port"`
+		User          string `yaml:"user"`
+		DatabaseName  string `yaml:"database_name"`
+		Password      string `yaml:"password"`
 	} `yaml:"postgres"`
 }
 

@@ -6,7 +6,7 @@ import (
 )
 
 type Repository interface {
-	Add(context.Context, models.Film) (models.Film, error)
+	Add(context.Context, *models.Film) (models.Film, error)
 }
 
 type Cache interface {

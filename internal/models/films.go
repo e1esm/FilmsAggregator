@@ -3,7 +3,7 @@ package models
 import "github.com/google/uuid"
 
 type Film struct {
-	ID           uuid.UUID `json:"id,omitempty"`
+	ID           uuid.UUID `json:"-"`
 	Title        string    `json:"title"`
 	Crew         Crew      `json:"crew"`
 	ReleasedYear int       `json:"released_year"`
@@ -16,7 +16,7 @@ type Crew struct {
 }
 
 type Person struct {
-	ID        uuid.UUID `json:"id,omitempty"`
+	ID        uuid.UUID `json:"-"`
 	Name      string    `json:"name"`
 	Birthdate string    `json:"birthdate"`
 	Gender    string    `json:"gender"`
