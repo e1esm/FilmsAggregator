@@ -35,6 +35,9 @@ func (fr *FilmsRepository) Add(ctx context.Context, film *models.Film) (models.F
 	uuid.GenerateUUIDs(film)
 
 	tx, err := fr.Pool.Begin(ctx)
+	if err != nil {
+		logger.Logger.Error("Couldn't have begun transaction", zap.String("err", err.Error()))
+	}
 	defer tx.Rollback(ctx)
 	if err != nil {
 		logger.Logger.Error("Couldn't have started transaction", zap.String("err", err.Error()))
