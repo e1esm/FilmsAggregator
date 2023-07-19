@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"sync"
@@ -35,6 +36,14 @@ func (tm *TransactionManager) Delete(id uuid.UUID) {
 	tm.rwmx.Lock()
 	delete(tm.transactions, id)
 	tm.rwmx.Unlock()
+}
+
+func (tm *TransactionManager) VerifyAndGet(id uuid.UUID) (pgx.Tx, error) {
+	tx := tm.Get(id)
+	if tx == nil {
+		return nil, fmt.Errorf("tracsaction wasn't started, neither was deleted")
+	}
+	return tx, nil
 }
 
 //Verify

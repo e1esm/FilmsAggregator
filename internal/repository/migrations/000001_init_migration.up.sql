@@ -28,7 +28,6 @@ CREATE index idx_actor_name on actor(name);
 
 
 CREATE TABLE crew(
-    id uuid PRIMARY KEY ,
     actor_id uuid,
     producer_id uuid,
     film_id uuid,

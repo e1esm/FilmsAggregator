@@ -50,6 +50,9 @@ func (fr *FilmsRepository) Add(ctx context.Context, film *models.Film) (models.F
 		return models.Film{}, err
 	}
 
+	if err = fr.AddWorkers(ctx, film); err != nil {
+		return models.Film{}, err
+	}
 	if err = fr.AddCrew(ctx, film); err != nil {
 		return models.Film{}, err
 	}
@@ -81,8 +84,9 @@ func (fr *FilmsRepository) AddFilm(ctx context.Context, film *models.Film) error
 }
 
 //AddCrew
+//TODO: verify incoming date of a model
 
-func (fr *FilmsRepository) AddCrew(ctx context.Context, film *models.Film) error {
+func (fr *FilmsRepository) AddWorkers(ctx context.Context, film *models.Film) error {
 
 	if err := fr.AddProducers(ctx, film.ID, film.Crew.Producers); err != nil {
 		return err
@@ -95,10 +99,9 @@ func (fr *FilmsRepository) AddCrew(ctx context.Context, film *models.Film) error
 }
 
 func (fr *FilmsRepository) AddProducers(ctx context.Context, id uuidHash.UUID, producers []models.Producer) error {
-	tx := fr.TransactionManager.Get(id)
-	if tx == nil {
-		fr.TransactionManager.Delete(id)
-		return fmt.Errorf("tracsaction wasn't started, neither was deleted")
+	tx, err := fr.TransactionManager.VerifyAndGet(id)
+	if err != nil {
+		return err
 	}
 	for _, producer := range producers {
 		_, err := tx.Exec(ctx, "INSERT INTO producer (id, name, birthdate, gender) VALUES ($1, $2, $3, $4);",
@@ -117,10 +120,9 @@ func (fr *FilmsRepository) AddProducers(ctx context.Context, id uuidHash.UUID, p
 }
 
 func (fr *FilmsRepository) AddActors(ctx context.Context, id uuidHash.UUID, actors []models.Actor) error {
-	tx := fr.TransactionManager.Get(id)
-	if tx == nil {
-		fr.TransactionManager.Delete(id)
-		return fmt.Errorf("tracsaction wasn't started, neither was deleted")
+	tx, err := fr.TransactionManager.VerifyAndGet(id)
+	if err != nil {
+		return err
 	}
 	for _, actor := range actors {
 		_, err := tx.Exec(ctx, "INSERT INTO actor (id, name, birthdate, gender, role) VALUES ($1, $2, $3, $4, $5);",
@@ -133,6 +135,27 @@ func (fr *FilmsRepository) AddActors(ctx context.Context, id uuidHash.UUID, acto
 			logger.Logger.Error("Couldn't have inserted actor",
 				zap.String("actor", actor.Name),
 				zap.String("err", err.Error()))
+			return err
+		}
+	}
+	return nil
+}
+
+func (fr *FilmsRepository) AddCrew(ctx context.Context, film *models.Film) error {
+	tx, err := fr.TransactionManager.VerifyAndGet(film.ID)
+	if err != nil {
+		return err
+	}
+	for _, producer := range film.Crew.Producers {
+		_, err := tx.Exec(ctx, "INSERT INTO crew (producer_id, film_id) VALUES ($1, $2);", producer.ID, film.ID)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, actor := range film.Crew.Actors {
+		_, err := tx.Exec(ctx, "INSERT INTO crew (actor_id, film_id) VALUES ($1, $2)", actor.ID, film.ID)
+		if err != nil {
 			return err
 		}
 	}
