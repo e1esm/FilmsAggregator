@@ -27,6 +27,7 @@ func NewFilmsRepository(cfg config.Config, manager *TransactionManager) reposito
 		cfg.Postgres.DatabaseName,
 		cfg.Postgres.Connections)
 	pool, err := pgxpool.New(context.Background(), dbUrl)
+
 	if err != nil {
 		logger.Logger.Fatal("Couldn't have opened connection with DB", zap.String("err", err.Error()))
 	}
@@ -49,7 +50,7 @@ func (fr *FilmsRepository) Add(ctx context.Context, film *models.Film) (models.F
 		return models.Film{}, err
 	}
 
-	if err = fr.AddActors(ctx, film.ID, film.Crew.Actors); err != nil {
+	if err = fr.AddCrew(ctx, film); err != nil {
 		return models.Film{}, err
 	}
 
@@ -79,10 +80,47 @@ func (fr *FilmsRepository) AddFilm(ctx context.Context, film *models.Film) error
 	return nil
 }
 
+//AddCrew
+
+func (fr *FilmsRepository) AddCrew(ctx context.Context, film *models.Film) error {
+
+	if err := fr.AddProducers(ctx, film.ID, film.Crew.Producers); err != nil {
+		return err
+	}
+
+	if err := fr.AddActors(ctx, film.ID, film.Crew.Actors); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (fr *FilmsRepository) AddProducers(ctx context.Context, id uuidHash.UUID, producers []models.Producer) error {
+	tx := fr.TransactionManager.Get(id)
+	if tx == nil {
+		fr.TransactionManager.Delete(id)
+		return fmt.Errorf("tracsaction wasn't started, neither was deleted")
+	}
+	for _, producer := range producers {
+		_, err := tx.Exec(ctx, "INSERT INTO producer (id, name, birthdate, gender) VALUES ($1, $2, $3, $4);",
+			producer.ID,
+			producer.Name,
+			producer.Birthdate,
+			producer.Gender)
+		if err != nil {
+			logger.Logger.Error("Couldn't have inserted producer",
+				zap.String("producer", producer.Name),
+				zap.String("err", err.Error()))
+			return err
+		}
+	}
+	return nil
+}
+
 func (fr *FilmsRepository) AddActors(ctx context.Context, id uuidHash.UUID, actors []models.Actor) error {
 	tx := fr.TransactionManager.Get(id)
 	if tx == nil {
 		fr.TransactionManager.Delete(id)
+		return fmt.Errorf("tracsaction wasn't started, neither was deleted")
 	}
 	for _, actor := range actors {
 		_, err := tx.Exec(ctx, "INSERT INTO actor (id, name, birthdate, gender, role) VALUES ($1, $2, $3, $4, $5);",

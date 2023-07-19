@@ -36,3 +36,5 @@ func (tm *TransactionManager) Delete(id uuid.UUID) {
 	delete(tm.transactions, id)
 	tm.rwmx.Unlock()
 }
+
+//Verify
