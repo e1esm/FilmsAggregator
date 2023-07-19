@@ -22,14 +22,14 @@ func (fr *FilmsRepository) Add(ctx context.Context, film *models.Film) (models.F
 		tx.Rollback(ctx)
 		fr.TransactionManager.Delete(film.ID)
 	}()
-	if err = fr.AddFilm(ctx, film); err != nil {
+	if err = fr.addFilm(ctx, film); err != nil {
 		return models.Film{}, err
 	}
 
-	if err = fr.AddWorkers(ctx, film); err != nil {
+	if err = fr.addWorkers(ctx, film); err != nil {
 		return models.Film{}, err
 	}
-	if err = fr.AddCrew(ctx, film); err != nil {
+	if err = fr.addCrew(ctx, film); err != nil {
 		return models.Film{}, err
 	}
 
@@ -39,7 +39,7 @@ func (fr *FilmsRepository) Add(ctx context.Context, film *models.Film) (models.F
 	return *film, nil
 }
 
-func (fr *FilmsRepository) AddFilm(ctx context.Context, film *models.Film) error {
+func (fr *FilmsRepository) addFilm(ctx context.Context, film *models.Film) error {
 	tx := fr.TransactionManager.Get(film.ID)
 	if tx == nil {
 		fr.TransactionManager.Delete(film.ID)
@@ -59,19 +59,19 @@ func (fr *FilmsRepository) AddFilm(ctx context.Context, film *models.Film) error
 	return nil
 }
 
-func (fr *FilmsRepository) AddWorkers(ctx context.Context, film *models.Film) error {
+func (fr *FilmsRepository) addWorkers(ctx context.Context, film *models.Film) error {
 
-	if err := fr.AddProducers(ctx, film.ID, film.Crew.Producers); err != nil {
+	if err := fr.addProducers(ctx, film.ID, film.Crew.Producers); err != nil {
 		return err
 	}
 
-	if err := fr.AddActors(ctx, film.ID, film.Crew.Actors); err != nil {
+	if err := fr.addActors(ctx, film.ID, film.Crew.Actors); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (fr *FilmsRepository) AddProducers(ctx context.Context, id uuidHash.UUID, producers []models.Producer) error {
+func (fr *FilmsRepository) addProducers(ctx context.Context, id uuidHash.UUID, producers []models.Producer) error {
 	tx, err := fr.TransactionManager.VerifyAndGet(id)
 	if err != nil {
 		return err
@@ -92,7 +92,7 @@ func (fr *FilmsRepository) AddProducers(ctx context.Context, id uuidHash.UUID, p
 	return nil
 }
 
-func (fr *FilmsRepository) AddActors(ctx context.Context, id uuidHash.UUID, actors []models.Actor) error {
+func (fr *FilmsRepository) addActors(ctx context.Context, id uuidHash.UUID, actors []models.Actor) error {
 	tx, err := fr.TransactionManager.VerifyAndGet(id)
 	if err != nil {
 		return err
@@ -114,7 +114,7 @@ func (fr *FilmsRepository) AddActors(ctx context.Context, id uuidHash.UUID, acto
 	return nil
 }
 
-func (fr *FilmsRepository) AddCrew(ctx context.Context, film *models.Film) error {
+func (fr *FilmsRepository) addCrew(ctx context.Context, film *models.Film) error {
 	tx, err := fr.TransactionManager.VerifyAndGet(film.ID)
 	if err != nil {
 		return err
