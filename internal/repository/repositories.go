@@ -7,6 +7,7 @@ import (
 
 type Repository interface {
 	Add(context.Context, *models.Film) (models.Film, error)
+	FindByName(ctx context.Context, name string) ([]*models.Film, error)
 }
 
 type Cache interface {

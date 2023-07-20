@@ -25,6 +25,7 @@ func configureServer(service service.Service) *server.AggregatorServer {
 	sb := server.NewBuilder()
 	aggServ := sb.WithRouter(http.NewServeMux()).
 		WithEndpoint("/api/add/", sb.Server.AddFilm).
+		WithEndpoint("/api/get/", sb.Server.GetFilms).
 		WithService(service).
 		Build()
 	return aggServ

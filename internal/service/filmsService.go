@@ -7,7 +7,8 @@ import (
 )
 
 type Service interface {
-	AddFilm(context.Context, *models.Film) (models.Film, error)
+	Add(context.Context, *models.Film) (models.Film, error)
+	Get(ctx context.Context, name string) ([]*models.Film, error)
 }
 
 type FilmsService struct {
@@ -18,11 +19,19 @@ func NewService(repositories *repository.Repositories) *FilmsService {
 	return &FilmsService{Repositories: repositories}
 }
 
-func (fs *FilmsService) AddFilm(ctx context.Context, film *models.Film) (models.Film, error) {
+func (fs *FilmsService) Add(ctx context.Context, film *models.Film) (models.Film, error) {
 	inserted, err := fs.Repositories.MainRepo.Add(ctx, film)
 	if err != nil {
 
 		return models.Film{}, err
 	}
 	return inserted, nil
+}
+
+func (fs *FilmsService) Get(ctx context.Context, name string) ([]*models.Film, error) {
+	received, err := fs.Repositories.MainRepo.FindByName(ctx, name)
+	if err != nil {
+		return nil, err
+	}
+	return received, nil
 }
