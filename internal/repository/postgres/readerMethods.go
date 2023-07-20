@@ -71,23 +71,37 @@ func (fr *FilmsRepository) findCrew(ctx context.Context, films []*models.Film) (
 		if err != nil {
 			return nil, err
 		}
-		var ()
+		tempResponse := &models.ResponseTemp{}
 		for rows.Next() {
-			err = rows.Scan(&producerID, &producerName, &producerGender, &producerBirthdate,
-				&actorID, &actorName, &actorGender, &actorBirthdate, &actorRole)
+			err = rows.Scan(&tempResponse.ProducerID,
+				&tempResponse.ProducerName,
+				&tempResponse.ProducerGender,
+				&tempResponse.ProducerBirthdate,
+				&tempResponse.ActorID,
+				&tempResponse.ActorName,
+				&tempResponse.ActorGender,
+				&tempResponse.ActorBirthdate,
+				&tempResponse.ActorRole)
 			if err != nil {
 				logger.Logger.Error(err.Error())
 				return nil, err
 			}
-			if actorID.Status == pgtype.Null {
-				film.Crew.Producers = append(film.Crew.Producers, *models.NewProducer(producerID.Bytes, producerName.String, producerBirthdate.String, producerGender.String))
+			if tempResponse.ActorID.Status == pgtype.Null {
+				film.Crew.Producers = append(film.Crew.Producers,
+					*models.NewProducer(tempResponse.ProducerID.Bytes,
+						tempResponse.ProducerName.String,
+						tempResponse.ProducerBirthdate.String,
+						tempResponse.ProducerGender.String))
 			} else {
-				film.Crew.Actors = append(film.Crew.Actors, *models.NewActor(actorID.Bytes, actorName.String, actorBirthdate.String, actorGender.String, actorRole.String))
+				film.Crew.Actors = append(film.Crew.Actors,
+					*models.NewActor(tempResponse.ActorID.Bytes,
+						tempResponse.ActorName.String,
+						tempResponse.ActorBirthdate.String,
+						tempResponse.ActorGender.String,
+						tempResponse.ActorRole.String))
 			}
 		}
 	}
 
 	return films, nil
 }
-
-//type TempDBResponse TODO

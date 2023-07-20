@@ -13,17 +13,3 @@ type ResponseTemp struct {
 	ActorBirthdate    pgtype.Text
 	ActorRole         pgtype.Text
 }
-
-func NewResponseTemp(pID pgtype.UUID, pName, pGender, pBirthdate pgtype.Text,
-	aID pgtype.UUID, aName, aGender, aBirthdate, aRole pgtype.Text) *ResponseTemp {
-	return &ResponseTemp{ProducerID: pID,
-		ProducerName:      pName,
-		ProducerGender:    pGender,
-		ProducerBirthdate: pBirthdate,
-		ActorID:           aID,
-		ActorName:         aName,
-		ActorGender:       aGender,
-		ActorRole:         aRole,
-		ActorBirthdate:    aBirthdate,
-	}
-}
