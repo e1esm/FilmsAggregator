@@ -71,17 +71,7 @@ func (fr *FilmsRepository) findCrew(ctx context.Context, films []*models.Film) (
 		if err != nil {
 			return nil, err
 		}
-		var (
-			producerID        pgtype.UUID
-			producerName      pgtype.Text
-			producerGender    pgtype.Text
-			producerBirthdate pgtype.Text
-			actorID           pgtype.UUID
-			actorName         pgtype.Text
-			actorGender       pgtype.Text
-			actorBirthdate    pgtype.Text
-			actorRole         pgtype.Text
-		)
+		var ()
 		for rows.Next() {
 			err = rows.Scan(&producerID, &producerName, &producerGender, &producerBirthdate,
 				&actorID, &actorName, &actorGender, &actorBirthdate, &actorRole)
@@ -99,3 +89,5 @@ func (fr *FilmsRepository) findCrew(ctx context.Context, films []*models.Film) (
 
 	return films, nil
 }
+
+//type TempDBResponse TODO
