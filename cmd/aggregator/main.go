@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/e1esm/FilmsAggregator/internal/repository"
 	"github.com/e1esm/FilmsAggregator/internal/repository/postgres"
+	"github.com/e1esm/FilmsAggregator/internal/repository/reindexer"
 	"github.com/e1esm/FilmsAggregator/internal/server"
 	"github.com/e1esm/FilmsAggregator/internal/service"
 	"github.com/e1esm/FilmsAggregator/utils/config"
@@ -34,6 +35,7 @@ func configureServer(service service.Service) *server.AggregatorServer {
 func configureRepositories(config *config.Config) *repository.Repositories {
 	mainRepo := repository.NewRepositoriesBuilder().
 		WithMainRepo(postgres.NewFilmsRepository(*config, postgres.NewTransactionManager())).
+		WithCacheRepo(reindexer.NewCacheRepository(*config)).
 		Build()
 
 	return mainRepo

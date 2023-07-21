@@ -5,7 +5,7 @@ aggregator:
 reindexer:
   container_name: reindexer
   db_name: films
-  port: 9088
+  port: 6534
   cache_time: 15
 postgres:
   container_name: postgres
