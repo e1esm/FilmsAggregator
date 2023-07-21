@@ -4,6 +4,9 @@ import (
 	"context"
 	"github.com/e1esm/FilmsAggregator/internal/models"
 	"github.com/e1esm/FilmsAggregator/internal/repository"
+	"github.com/e1esm/FilmsAggregator/utils/logger"
+	"go.uber.org/zap"
+	"time"
 )
 
 type Service interface {
@@ -29,7 +32,17 @@ func (fs *FilmsService) Add(ctx context.Context, film *models.Film) (models.Film
 }
 
 func (fs *FilmsService) Get(ctx context.Context, name string) ([]*models.Film, error) {
-	received, err := fs.Repositories.MainRepo.FindByName(ctx, name)
+
+	received, err := fs.Repositories.CacheRepo.FindByName(ctx, name)
+	if err != nil {
+		logger.Logger.Error("Couldn't have retrieved films from cache", zap.String("err", err.Error()))
+	}
+	current := time.Now()
+	// TODO Change Hardcoded value
+	if current.Sub(received[0].CacheTime).Minutes() < 15 {
+		return received, nil
+	}
+	received, err = fs.Repositories.MainRepo.FindByName(ctx, name)
 	if err != nil {
 		return nil, err
 	}

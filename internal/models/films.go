@@ -1,6 +1,9 @@
 package models
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"time"
+)
 
 type Film struct {
 	ID           uuid.UUID `json:"-"`
@@ -8,6 +11,7 @@ type Film struct {
 	Crew         Crew      `json:"crew"`
 	ReleasedYear int       `json:"released_year"`
 	Revenue      float64   `json:"revenue"`
+	CacheTime    time.Time `json:"-" reindex:"cache_time"`
 }
 
 type Crew struct {

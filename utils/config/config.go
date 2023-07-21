@@ -18,8 +18,9 @@ type Config struct {
 		Address string `yaml:"address"`
 	} `yaml:"aggregator"`
 	Reindexer struct {
-		Name string `yaml:"name"`
-		Port int    `yaml:"port"`
+		ContainerName string `yaml:"container_name"`
+		DBName        string `yaml:"db_name"`
+		Port          int    `yaml:"port"`
 	} `yaml:"reindexer"`
 	CacheTime string `yaml:"cache_time"`
 	Postgres  struct {

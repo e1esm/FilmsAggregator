@@ -3,9 +3,10 @@ aggregator:
   port: 8080
   address: 0.0.0.0
 reindexer:
-  name: reindexer
+  container_name: reindexer
+  db_name: films
   port: 9088
-  cache_time: 15M
+  cache_time: 15
 postgres:
   container_name: postgres
   port: 5432
