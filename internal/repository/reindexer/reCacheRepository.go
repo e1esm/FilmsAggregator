@@ -9,6 +9,11 @@ import (
 	"github.com/restream/reindexer/v3"
 	_ "github.com/restream/reindexer/v3/bindings/cproto"
 	"go.uber.org/zap"
+	"time"
+)
+
+var (
+	retires = 10
 )
 
 type CacheRepository struct {
@@ -19,9 +24,21 @@ type CacheRepository struct {
 func NewCacheRepository(config config.Config) *CacheRepository {
 	dsn := fmt.Sprintf("cproto://%s:%d/%s", config.Reindexer.ContainerName, config.Reindexer.Port, config.Reindexer.DBName)
 	db := reindexer.NewReindex(dsn, reindexer.WithCreateDBIfMissing())
-	err := db.Ping()
+	var err error
+	try := 0
+	ticker := time.NewTicker(1 * time.Second)
+	for try < retires {
+		select {
+		case <-ticker.C:
+			err = db.Ping()
+			if err == nil {
+				break
+			}
+			db = reindexer.NewReindex(dsn, reindexer.WithCreateDBIfMissing())
+		}
+		try++
+	}
 	if err != nil {
-		logger.Logger.Error(err.Error())
 		return nil
 	}
 	err = db.OpenNamespace(config.Reindexer.DBName, reindexer.DefaultNamespaceOptions(), models.Film{})
