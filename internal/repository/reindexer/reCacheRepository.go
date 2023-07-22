@@ -49,3 +49,7 @@ func (cr *CacheRepository) Add(ctx context.Context, film *models.Film) (models.F
 func (cr *CacheRepository) FindByName(ctx context.Context, name string) ([]*models.Film, error) {
 	return nil, nil
 }
+
+func (cr *CacheRepository) Delete(ctx context.Context, name string) (models.Film, error) {
+	return models.Film{}, nil
+}

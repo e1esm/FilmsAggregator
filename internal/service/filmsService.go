@@ -39,8 +39,24 @@ func (fs *FilmsService) Get(ctx context.Context, name string) ([]*models.Film, e
 	}
 	current := time.Now()
 	// TODO Change Hardcoded value
-	if current.Sub(received[0].CacheTime).Minutes() < 15 {
+	isUpToDate := true
+	for i := 0; i < len(received); i++ {
+		if current.Sub(received[i].CacheTime).Minutes() > 15 {
+			isUpToDate = false
+		}
+	}
+
+	if isUpToDate {
 		return received, nil
+	} else {
+		for i := 0; i < len(received); i++ {
+			_, err = fs.Repositories.CacheRepo.Delete(ctx, received[i].Title)
+			if err != nil {
+				logger.Logger.Error("Couldn't have deleted film from cache",
+					zap.String("err", err.Error()),
+					zap.String("film", received[i].Title))
+			}
+		}
 	}
 	received, err = fs.Repositories.MainRepo.FindByName(ctx, name)
 	if err != nil {

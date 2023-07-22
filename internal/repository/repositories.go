@@ -12,6 +12,7 @@ type Repository interface {
 
 type Cache interface {
 	Repository
+	Delete(context.Context, string) (models.Film, error)
 }
 
 type Repositories struct {
