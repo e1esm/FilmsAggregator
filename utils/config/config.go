@@ -21,9 +21,9 @@ type Config struct {
 		ContainerName string `yaml:"container_name"`
 		DBName        string `yaml:"db_name"`
 		Port          int    `yaml:"port"`
+		CacheTime     string `yaml:"cache_time"`
 	} `yaml:"reindexer"`
-	CacheTime string `yaml:"cache_time"`
-	Postgres  struct {
+	Postgres struct {
 		ContainerName string `yaml:"container_name"`
 		Port          int    `yaml:"port"`
 		User          string `yaml:"user"`

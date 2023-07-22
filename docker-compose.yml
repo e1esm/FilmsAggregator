@@ -3,6 +3,9 @@ services:
   reindexer:
     container_name: "reindexer"
     image: reindexer/reindexer:latest
+    ports:
+      - "6534:6534"
+      - "9088:9088"
   aggregator:
     container_name: "server"
     build:

@@ -13,13 +13,13 @@ import (
 )
 
 func main() {
-
 	cfg := config.NewConfig()
-	currServer := configureServer(configureService(configureRepositories(cfg)))
+	currServer := configureServer(configureService(cfg))
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d",
 		cfg.Aggregator.Address,
 		cfg.Aggregator.Port),
 		currServer.Router))
+
 }
 
 func configureServer(service service.Service) *server.AggregatorServer {
@@ -41,6 +41,6 @@ func configureRepositories(config *config.Config) *repository.Repositories {
 	return mainRepo
 }
 
-func configureService(repositories *repository.Repositories) *service.FilmsService {
-	return service.NewService(repositories)
+func configureService(config *config.Config) *service.FilmsService {
+	return service.NewService(configureRepositories(config), config)
 }

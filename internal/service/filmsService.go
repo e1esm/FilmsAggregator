@@ -25,8 +25,8 @@ type FilmsService struct {
 	ExpirationTime int
 }
 
-func NewService(repositories *repository.Repositories, config config.Config) *FilmsService {
-	expirationTime, err := strconv.Atoi(config.CacheTime)
+func NewService(repositories *repository.Repositories, config *config.Config) *FilmsService {
+	expirationTime, err := strconv.Atoi(config.Reindexer.CacheTime)
 	if err != nil {
 		logger.Logger.Error(err.Error())
 		expirationTime = valid_cache_time_minutes
@@ -49,33 +49,36 @@ func (fs *FilmsService) Add(ctx context.Context, film *models.Film) (models.Film
 }
 
 func (fs *FilmsService) Get(ctx context.Context, name string) ([]*models.Film, error) {
-
-	received, err := fs.Repositories.CacheRepo.FindByName(ctx, name)
-	if err != nil {
-		logger.Logger.Error("Couldn't have retrieved films from cache", zap.String("err", err.Error()))
-	}
-	current := time.Now()
-	// TODO Change Hardcoded value
-	isUpToDate := true
-	for i := 0; i < len(received); i++ {
-		if int(current.Sub(received[i].CacheTime).Minutes()) > fs.ExpirationTime {
-			isUpToDate = false
+	/*
+		received, err := fs.Repositories.CacheRepo.FindByName(ctx, name)
+		if err != nil {
+			logger.Logger.Error("Couldn't have retrieved films from cache", zap.String("err", err.Error()))
 		}
-	}
-
-	if isUpToDate {
-		return received, nil
-	} else {
+		current := time.Now()
+		// TODO Change Hardcoded value
+		isUpToDate := true
 		for i := 0; i < len(received); i++ {
-			_, err = fs.Repositories.CacheRepo.Delete(ctx, received[i].Title)
-			if err != nil {
-				logger.Logger.Error("Couldn't have deleted film from cache",
-					zap.String("err", err.Error()),
-					zap.String("film", received[i].Title))
+			if int(current.Sub(received[i].CacheTime).Minutes()) > fs.ExpirationTime {
+				isUpToDate = false
 			}
 		}
-	}
-	received, err = fs.Repositories.MainRepo.FindByName(ctx, name)
+
+		if isUpToDate {
+			logger.Logger.Info(fmt.Sprintf("%v", received))
+			return received, nil
+		} else {
+			for i := 0; i < len(received); i++ {
+				_, err = fs.Repositories.CacheRepo.Delete(ctx, received[i].Title)
+				if err != nil {
+					logger.Logger.Error("Couldn't have deleted film from cache",
+						zap.String("err", err.Error()),
+						zap.String("film", received[i].Title))
+				}
+			}
+		}
+
+	*/
+	received, err := fs.Repositories.MainRepo.FindByName(ctx, name)
 	if err != nil {
 		return nil, err
 	}

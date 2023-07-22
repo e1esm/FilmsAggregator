@@ -34,7 +34,7 @@ func NewCacheRepository(config config.Config) *CacheRepository {
 
 func (cr *CacheRepository) Add(ctx context.Context, film *models.Film) (models.Film, error) {
 	cr.db.WithContext(ctx)
-	err := cr.db.Upsert(cr.namespace, film)
+	_, err := cr.db.Insert(cr.namespace, film, "id=serial()")
 	if err != nil {
 		logger.Logger.Error(err.Error(), zap.String("film", film.Title))
 		return models.Film{}, err
