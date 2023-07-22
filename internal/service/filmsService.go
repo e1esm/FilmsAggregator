@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"github.com/e1esm/FilmsAggregator/internal/models/api"
 	"github.com/e1esm/FilmsAggregator/internal/models/db"
 	"github.com/e1esm/FilmsAggregator/internal/repository"
@@ -46,42 +47,47 @@ func (fs *FilmsService) Add(ctx context.Context, film *db.Film) (api.Film, error
 
 		return api.Film{}, err
 	}
-	return inserted, nil
+	return *api.NewFilm(inserted), nil
 }
 
 func (fs *FilmsService) Get(ctx context.Context, name string) ([]*api.Film, error) {
-	/*
-		received, err := fs.Repositories.CacheRepo.FindByName(ctx, name)
-		if err != nil {
-			logger.Logger.Error("Couldn't have retrieved films from cache", zap.String("err", err.Error()))
+	received, err := fs.Repositories.CacheRepo.FindByName(ctx, name)
+	apiFilms := make([]*api.Film, 0)
+	if err != nil {
+		logger.Logger.Error("Couldn't have retrieved films from cache", zap.String("err", err.Error()))
+	}
+	current := time.Now()
+	isUpToDate := true
+	for i := 0; i < len(received); i++ {
+		if int(current.Sub(received[i].CacheTime).Minutes()) > fs.ExpirationTime {
+			isUpToDate = false
 		}
-		current := time.Now()
-		// TODO Change Hardcoded value
-		isUpToDate := true
+	}
+
+	if isUpToDate {
+
 		for i := 0; i < len(received); i++ {
-			if int(current.Sub(received[i].CacheTime).Minutes()) > fs.ExpirationTime {
-				isUpToDate = false
+			apiFilms = append(apiFilms, api.NewFilm(*received[i]))
+		}
+		logger.Logger.Info(fmt.Sprintf("%v", received))
+		return apiFilms, nil
+	} else {
+		for i := 0; i < len(received); i++ {
+			_, err = fs.Repositories.CacheRepo.Delete(ctx, received[i].Title)
+			if err != nil {
+				logger.Logger.Error("Couldn't have deleted film from cache",
+					zap.String("err", err.Error()),
+					zap.String("film", received[i].Title))
 			}
 		}
+	}
 
-		if isUpToDate {
-			logger.Logger.Info(fmt.Sprintf("%v", received))
-			return received, nil
-		} else {
-			for i := 0; i < len(received); i++ {
-				_, err = fs.Repositories.CacheRepo.Delete(ctx, received[i].Title)
-				if err != nil {
-					logger.Logger.Error("Couldn't have deleted film from cache",
-						zap.String("err", err.Error()),
-						zap.String("film", received[i].Title))
-				}
-			}
-		}
-
-	*/
-	received, err := fs.Repositories.MainRepo.FindByName(ctx, name)
+	received, err = fs.Repositories.MainRepo.FindByName(ctx, name)
 	if err != nil {
 		return nil, err
 	}
-	return received, nil
+	for i := 0; i < len(received); i++ {
+		apiFilms = append(apiFilms, api.NewFilm(*received[i]))
+	}
+	return apiFilms, nil
 }

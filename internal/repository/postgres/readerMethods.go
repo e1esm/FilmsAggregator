@@ -3,14 +3,13 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"github.com/e1esm/FilmsAggregator/internal/models/api"
 	"github.com/e1esm/FilmsAggregator/internal/models/db"
 	"github.com/e1esm/FilmsAggregator/internal/models/general"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
 	"github.com/jackc/pgtype"
 )
 
-func (fr *FilmsRepository) FindByName(ctx context.Context, name string) ([]*api.Film, error) {
+func (fr *FilmsRepository) FindByName(ctx context.Context, name string) ([]*db.Film, error) {
 	foundFilms := make([]*db.Film, 0)
 	query := "select * from film where title = $1;"
 	rows, err := fr.Pool.Query(ctx, query, name)
@@ -32,11 +31,7 @@ func (fr *FilmsRepository) FindByName(ctx context.Context, name string) ([]*api.
 	if err != nil {
 		return nil, err
 	}
-	apiFilms := make([]*api.Film, 0)
-	for i := 0; i < len(films); i++ {
-		apiFilms = append(apiFilms, api.NewFilm(*films[i]))
-	}
-	return apiFilms, nil
+	return films, nil
 }
 
 func (fr *FilmsRepository) findCrew(ctx context.Context, films []*db.Film) ([]*db.Film, error) {

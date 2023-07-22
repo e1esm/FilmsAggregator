@@ -2,18 +2,17 @@ package repository
 
 import (
 	"context"
-	"github.com/e1esm/FilmsAggregator/internal/models/api"
 	"github.com/e1esm/FilmsAggregator/internal/models/db"
 )
 
 type Repository interface {
-	Add(context.Context, *db.Film) (api.Film, error)
-	FindByName(ctx context.Context, name string) ([]*api.Film, error)
+	Add(context.Context, *db.Film) (db.Film, error)
+	FindByName(ctx context.Context, name string) ([]*db.Film, error)
 }
 
 type Cache interface {
 	Repository
-	Delete(context.Context, string) (api.Film, error)
+	Delete(context.Context, string) (db.Film, error)
 }
 
 type Repositories struct {

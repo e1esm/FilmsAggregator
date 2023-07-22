@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"github.com/e1esm/FilmsAggregator/internal/models/api"
 	"github.com/e1esm/FilmsAggregator/internal/models/db"
 	"github.com/e1esm/FilmsAggregator/internal/models/general"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
@@ -12,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (fr *FilmsRepository) Add(ctx context.Context, film *db.Film) (api.Film, error) {
+func (fr *FilmsRepository) Add(ctx context.Context, film *db.Film) (db.Film, error) {
 	uuid.GenerateUUIDs(film)
 
 	tx, err := fr.Pool.Begin(ctx)
@@ -25,20 +24,20 @@ func (fr *FilmsRepository) Add(ctx context.Context, film *db.Film) (api.Film, er
 		fr.TransactionManager.Delete(film.ID)
 	}()
 	if err = fr.addFilm(ctx, film); err != nil {
-		return api.Film{}, err
+		return db.Film{}, err
 	}
 
 	if err = fr.addWorkers(ctx, film); err != nil {
-		return api.Film{}, err
+		return db.Film{}, err
 	}
 	if err = fr.addCrew(ctx, film); err != nil {
-		return api.Film{}, err
+		return db.Film{}, err
 	}
 
 	if err := tx.Commit(ctx); err != nil {
-		return api.Film{}, err
+		return db.Film{}, err
 	}
-	return *api.NewFilm(*film), nil
+	return *film, nil
 }
 
 func (fr *FilmsRepository) addFilm(ctx context.Context, film *db.Film) error {

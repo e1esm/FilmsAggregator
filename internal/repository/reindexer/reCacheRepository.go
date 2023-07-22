@@ -3,8 +3,7 @@ package reindexer
 import (
 	"context"
 	"fmt"
-	"github.com/e1esm/FilmsAggregator/internal/models/api"
-	"github.com/e1esm/FilmsAggregator/internal/models/db"
+	dbModel "github.com/e1esm/FilmsAggregator/internal/models/db"
 	"github.com/e1esm/FilmsAggregator/utils/config"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
 	"github.com/restream/reindexer/v3"
@@ -42,7 +41,7 @@ func NewCacheRepository(config config.Config) *CacheRepository {
 	if err != nil {
 		return nil
 	}
-	err = db.OpenNamespace(config.Reindexer.DBName, reindexer.DefaultNamespaceOptions(), api.Film{})
+	err = db.OpenNamespace(config.Reindexer.DBName, reindexer.DefaultNamespaceOptions(), dbModel.Film{})
 	if err != nil {
 		logger.Logger.Error(err.Error())
 		return nil
@@ -50,20 +49,36 @@ func NewCacheRepository(config config.Config) *CacheRepository {
 	return &CacheRepository{db: db, namespace: config.Reindexer.DBName}
 }
 
-func (cr *CacheRepository) Add(ctx context.Context, film *db.Film) (api.Film, error) {
+func (cr *CacheRepository) Add(ctx context.Context, film *dbModel.Film) (dbModel.Film, error) {
+	film.CacheTime = time.Now()
 	cr.db.WithContext(ctx)
 	_, err := cr.db.Insert(cr.namespace, film, "id=serial()")
 	if err != nil {
 		logger.Logger.Error(err.Error(), zap.String("film", film.Title))
-		return api.Film{}, err
+		return dbModel.Film{}, err
 	}
-	return *api.NewFilm(*film), nil
+	return *film, nil
 }
 
-func (cr *CacheRepository) FindByName(ctx context.Context, name string) ([]*api.Film, error) {
-	return nil, nil
+func (cr *CacheRepository) FindByName(ctx context.Context, name string) ([]*dbModel.Film, error) {
+	films := make([]*dbModel.Film, 0)
+	received, err := cr.db.Query(cr.namespace).Where("title", reindexer.EQ, name).Exec().FetchAll()
+	if err != nil {
+		return nil, err
+	}
+
+	for i := 0; i < len(received); i++ {
+		films = append(films, received[i].(*dbModel.Film))
+		//err = json.Unmarshal([]byte(received[i].(dbModel.Film)), films[i])
+		if err != nil {
+			logger.Logger.Error(err.Error())
+			return nil, err
+		}
+	}
+
+	return films, nil
 }
 
-func (cr *CacheRepository) Delete(ctx context.Context, name string) (api.Film, error) {
-	return api.Film{}, nil
+func (cr *CacheRepository) Delete(ctx context.Context, name string) (dbModel.Film, error) {
+	return dbModel.Film{}, nil
 }
