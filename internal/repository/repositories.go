@@ -3,10 +3,11 @@ package repository
 import (
 	"context"
 	"github.com/e1esm/FilmsAggregator/internal/models/api"
+	"github.com/e1esm/FilmsAggregator/internal/models/db"
 )
 
 type Repository interface {
-	Add(context.Context, *api.Film) (api.Film, error)
+	Add(context.Context, *db.Film) (api.Film, error)
 	FindByName(ctx context.Context, name string) ([]*api.Film, error)
 }
 

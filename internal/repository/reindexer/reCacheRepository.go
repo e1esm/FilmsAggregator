@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/e1esm/FilmsAggregator/internal/models/api"
+	"github.com/e1esm/FilmsAggregator/internal/models/db"
 	"github.com/e1esm/FilmsAggregator/utils/config"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
 	"github.com/restream/reindexer/v3"
@@ -49,14 +50,14 @@ func NewCacheRepository(config config.Config) *CacheRepository {
 	return &CacheRepository{db: db, namespace: config.Reindexer.DBName}
 }
 
-func (cr *CacheRepository) Add(ctx context.Context, film *api.Film) (api.Film, error) {
+func (cr *CacheRepository) Add(ctx context.Context, film *db.Film) (api.Film, error) {
 	cr.db.WithContext(ctx)
 	_, err := cr.db.Insert(cr.namespace, film, "id=serial()")
 	if err != nil {
 		logger.Logger.Error(err.Error(), zap.String("film", film.Title))
 		return api.Film{}, err
 	}
-	return api.Film{}, nil
+	return *api.NewFilm(*film), nil
 }
 
 func (cr *CacheRepository) FindByName(ctx context.Context, name string) ([]*api.Film, error) {

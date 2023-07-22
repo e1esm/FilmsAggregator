@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"github.com/e1esm/FilmsAggregator/internal/models/api"
 	"github.com/e1esm/FilmsAggregator/internal/models/db"
+	"github.com/e1esm/FilmsAggregator/internal/models/general"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
 	"github.com/jackc/pgtype"
 )
 
 func (fr *FilmsRepository) FindByName(ctx context.Context, name string) ([]*api.Film, error) {
-	foundFilms := make([]*api.Film, 0)
+	foundFilms := make([]*db.Film, 0)
 	query := "select * from film where title = $1;"
 	rows, err := fr.Pool.Query(ctx, query, name)
 	if err != nil {
@@ -19,18 +20,26 @@ func (fr *FilmsRepository) FindByName(ctx context.Context, name string) ([]*api.
 	i := -1
 	for rows.Next() {
 		i++
-		foundFilms = append(foundFilms, &api.Film{})
+		foundFilms = append(foundFilms, &db.Film{})
 		if err = rows.Scan(&foundFilms[i].ID, &foundFilms[i].Title, &foundFilms[i].ReleasedYear, &foundFilms[i].Revenue); err != nil {
 			return nil, fmt.Errorf("error occurred while scanning fetched values")
 		}
-		foundFilms[i].Crew.Actors = make([]api.Actor, 0)
-		foundFilms[i].Crew.Producers = make([]api.Producer, 0)
+		foundFilms[i].Crew.Actors = make([]general.Actor, 0)
+		foundFilms[i].Crew.Producers = make([]general.Producer, 0)
 	}
 
-	return fr.findCrew(ctx, foundFilms)
+	films, err := fr.findCrew(ctx, foundFilms)
+	if err != nil {
+		return nil, err
+	}
+	apiFilms := make([]*api.Film, 0)
+	for i := 0; i < len(films); i++ {
+		apiFilms = append(apiFilms, api.NewFilm(*films[i]))
+	}
+	return apiFilms, nil
 }
 
-func (fr *FilmsRepository) findCrew(ctx context.Context, films []*api.Film) ([]*api.Film, error) {
+func (fr *FilmsRepository) findCrew(ctx context.Context, films []*db.Film) ([]*db.Film, error) {
 	query := `WITH Producers AS (
 		SELECT
 	producer.id AS producer_id,
@@ -89,13 +98,13 @@ func (fr *FilmsRepository) findCrew(ctx context.Context, films []*api.Film) ([]*
 			}
 			if tempResponse.ActorID.Status == pgtype.Null {
 				film.Crew.Producers = append(film.Crew.Producers,
-					*api.NewProducer(tempResponse.ProducerID.Bytes,
+					*general.NewProducer(tempResponse.ProducerID.Bytes,
 						tempResponse.ProducerName.String,
 						tempResponse.ProducerBirthdate.String,
 						tempResponse.ProducerGender.String))
 			} else {
 				film.Crew.Actors = append(film.Crew.Actors,
-					*api.NewActor(tempResponse.ActorID.Bytes,
+					*general.NewActor(tempResponse.ActorID.Bytes,
 						tempResponse.ActorName.String,
 						tempResponse.ActorBirthdate.String,
 						tempResponse.ActorGender.String,

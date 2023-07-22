@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/e1esm/FilmsAggregator/internal/models/api"
+	"github.com/e1esm/FilmsAggregator/internal/models/db"
 	"github.com/e1esm/FilmsAggregator/internal/repository"
 	"github.com/e1esm/FilmsAggregator/utils/config"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
@@ -16,7 +17,7 @@ const (
 )
 
 type Service interface {
-	Add(context.Context, *api.Film) (api.Film, error)
+	Add(context.Context, *db.Film) (api.Film, error)
 	Get(ctx context.Context, name string) ([]*api.Film, error)
 }
 
@@ -34,7 +35,7 @@ func NewService(repositories *repository.Repositories, config *config.Config) *F
 	return &FilmsService{Repositories: repositories, ExpirationTime: expirationTime}
 }
 
-func (fs *FilmsService) Add(ctx context.Context, film *api.Film) (api.Film, error) {
+func (fs *FilmsService) Add(ctx context.Context, film *db.Film) (api.Film, error) {
 	film.CacheTime = time.Now()
 	_, err := fs.Repositories.CacheRepo.Add(ctx, film)
 	if err != nil {
