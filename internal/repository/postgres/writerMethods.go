@@ -3,14 +3,15 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"github.com/e1esm/FilmsAggregator/internal/models/api"
+	"github.com/e1esm/FilmsAggregator/internal/models/db"
+	"github.com/e1esm/FilmsAggregator/internal/models/general"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
 	"github.com/e1esm/FilmsAggregator/utils/uuid"
 	uuidHash "github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
-func (fr *FilmsRepository) Add(ctx context.Context, film *api.Film) (api.Film, error) {
+func (fr *FilmsRepository) Add(ctx context.Context, film *db.Film) (db.Film, error) {
 	uuid.GenerateUUIDs(film)
 
 	tx, err := fr.Pool.Begin(ctx)
@@ -23,23 +24,23 @@ func (fr *FilmsRepository) Add(ctx context.Context, film *api.Film) (api.Film, e
 		fr.TransactionManager.Delete(film.ID)
 	}()
 	if err = fr.addFilm(ctx, film); err != nil {
-		return api.Film{}, err
+		return db.Film{}, err
 	}
 
 	if err = fr.addWorkers(ctx, film); err != nil {
-		return api.Film{}, err
+		return db.Film{}, err
 	}
 	if err = fr.addCrew(ctx, film); err != nil {
-		return api.Film{}, err
+		return db.Film{}, err
 	}
 
 	if err := tx.Commit(ctx); err != nil {
-		return api.Film{}, err
+		return db.Film{}, err
 	}
 	return *film, nil
 }
 
-func (fr *FilmsRepository) addFilm(ctx context.Context, film *api.Film) error {
+func (fr *FilmsRepository) addFilm(ctx context.Context, film *db.Film) error {
 	tx := fr.TransactionManager.Get(film.ID)
 	if tx == nil {
 		fr.TransactionManager.Delete(film.ID)
@@ -59,7 +60,7 @@ func (fr *FilmsRepository) addFilm(ctx context.Context, film *api.Film) error {
 	return nil
 }
 
-func (fr *FilmsRepository) addWorkers(ctx context.Context, film *api.Film) error {
+func (fr *FilmsRepository) addWorkers(ctx context.Context, film *db.Film) error {
 
 	if err := fr.addProducers(ctx, film.ID, film.Crew.Producers); err != nil {
 		return err
@@ -71,7 +72,7 @@ func (fr *FilmsRepository) addWorkers(ctx context.Context, film *api.Film) error
 	return nil
 }
 
-func (fr *FilmsRepository) addProducers(ctx context.Context, id uuidHash.UUID, producers []api.Producer) error {
+func (fr *FilmsRepository) addProducers(ctx context.Context, id uuidHash.UUID, producers []general.Producer) error {
 	tx, err := fr.TransactionManager.VerifyAndGet(id)
 	if err != nil {
 		return err
@@ -92,7 +93,7 @@ func (fr *FilmsRepository) addProducers(ctx context.Context, id uuidHash.UUID, p
 	return nil
 }
 
-func (fr *FilmsRepository) addActors(ctx context.Context, id uuidHash.UUID, actors []api.Actor) error {
+func (fr *FilmsRepository) addActors(ctx context.Context, id uuidHash.UUID, actors []general.Actor) error {
 	tx, err := fr.TransactionManager.VerifyAndGet(id)
 	if err != nil {
 		return err
@@ -114,7 +115,7 @@ func (fr *FilmsRepository) addActors(ctx context.Context, id uuidHash.UUID, acto
 	return nil
 }
 
-func (fr *FilmsRepository) addCrew(ctx context.Context, film *api.Film) error {
+func (fr *FilmsRepository) addCrew(ctx context.Context, film *db.Film) error {
 	tx, err := fr.TransactionManager.VerifyAndGet(film.ID)
 	if err != nil {
 		return err

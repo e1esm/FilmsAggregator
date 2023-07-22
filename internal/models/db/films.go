@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/json"
+	"github.com/e1esm/FilmsAggregator/internal/models/api"
 	"github.com/e1esm/FilmsAggregator/internal/models/general"
 	"github.com/google/uuid"
 	"time"
@@ -20,7 +21,7 @@ type Film struct {
 	HashCode     [16]byte     `reindex:"hash"`
 }
 
-func NewFilm(film Film) *Film {
+func NewFilm(film *api.Film) *Film {
 	var b bytes.Buffer
 	err := json.NewEncoder(&b).Encode(film)
 	if err != nil {
