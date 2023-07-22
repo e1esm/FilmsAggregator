@@ -107,6 +107,5 @@ func (fr *FilmsRepository) findCrew(ctx context.Context, films []*db.Film) ([]*d
 			}
 		}
 	}
-
 	return films, nil
 }

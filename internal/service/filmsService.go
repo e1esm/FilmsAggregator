@@ -64,7 +64,7 @@ func (fs *FilmsService) Get(ctx context.Context, name string) ([]*api.Film, erro
 		}
 	}
 
-	if isUpToDate {
+	if isUpToDate && len(received) > 0 {
 
 		for i := 0; i < len(received); i++ {
 			apiFilms = append(apiFilms, api.NewFilm(*received[i]))

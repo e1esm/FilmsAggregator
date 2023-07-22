@@ -69,7 +69,6 @@ func (cr *CacheRepository) FindByName(ctx context.Context, name string) ([]*dbMo
 
 	for i := 0; i < len(received); i++ {
 		films = append(films, received[i].(*dbModel.Film))
-		//err = json.Unmarshal([]byte(received[i].(dbModel.Film)), films[i])
 		if err != nil {
 			logger.Logger.Error(err.Error())
 			return nil, err
@@ -80,5 +79,10 @@ func (cr *CacheRepository) FindByName(ctx context.Context, name string) ([]*dbMo
 }
 
 func (cr *CacheRepository) Delete(ctx context.Context, name string) (dbModel.Film, error) {
-	return dbModel.Film{}, nil
+	query := fmt.Sprintf("DELETE FROM %s WHERE \"title\" = '%s';", cr.namespace, name)
+	iterator, err := cr.db.ExecSQL(query).FetchOne()
+	if err != nil {
+		return dbModel.Film{}, err
+	}
+	return iterator.(dbModel.Film), nil
 }
