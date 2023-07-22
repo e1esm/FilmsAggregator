@@ -8,10 +8,12 @@ import (
 	"github.com/e1esm/FilmsAggregator/utils/logger"
 	"github.com/restream/reindexer/v3"
 	_ "github.com/restream/reindexer/v3/bindings/cproto"
+	"go.uber.org/zap"
 )
 
 type CacheRepository struct {
-	DB *reindexer.Reindexer
+	namespace string
+	db        *reindexer.Reindexer
 }
 
 func NewCacheRepository(config config.Config) *CacheRepository {
@@ -27,10 +29,16 @@ func NewCacheRepository(config config.Config) *CacheRepository {
 		logger.Logger.Error(err.Error())
 		return nil
 	}
-	return &CacheRepository{DB: db}
+	return &CacheRepository{db: db, namespace: config.Reindexer.DBName}
 }
 
 func (cr *CacheRepository) Add(ctx context.Context, film *models.Film) (models.Film, error) {
+	cr.db.WithContext(ctx)
+	err := cr.db.Upsert(cr.namespace, film)
+	if err != nil {
+		logger.Logger.Error(err.Error(), zap.String("film", film.Title))
+		return models.Film{}, err
+	}
 	return models.Film{}, nil
 }
 
