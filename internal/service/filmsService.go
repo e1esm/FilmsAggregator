@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"github.com/e1esm/FilmsAggregator/internal/models"
+	"github.com/e1esm/FilmsAggregator/internal/models/api"
 	"github.com/e1esm/FilmsAggregator/internal/repository"
 	"github.com/e1esm/FilmsAggregator/utils/config"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
@@ -16,8 +16,8 @@ const (
 )
 
 type Service interface {
-	Add(context.Context, *models.Film) (models.Film, error)
-	Get(ctx context.Context, name string) ([]*models.Film, error)
+	Add(context.Context, *api.Film) (api.Film, error)
+	Get(ctx context.Context, name string) ([]*api.Film, error)
 }
 
 type FilmsService struct {
@@ -34,7 +34,7 @@ func NewService(repositories *repository.Repositories, config *config.Config) *F
 	return &FilmsService{Repositories: repositories, ExpirationTime: expirationTime}
 }
 
-func (fs *FilmsService) Add(ctx context.Context, film *models.Film) (models.Film, error) {
+func (fs *FilmsService) Add(ctx context.Context, film *api.Film) (api.Film, error) {
 	film.CacheTime = time.Now()
 	_, err := fs.Repositories.CacheRepo.Add(ctx, film)
 	if err != nil {
@@ -43,12 +43,12 @@ func (fs *FilmsService) Add(ctx context.Context, film *models.Film) (models.Film
 	inserted, err := fs.Repositories.MainRepo.Add(ctx, film)
 	if err != nil {
 
-		return models.Film{}, err
+		return api.Film{}, err
 	}
 	return inserted, nil
 }
 
-func (fs *FilmsService) Get(ctx context.Context, name string) ([]*models.Film, error) {
+func (fs *FilmsService) Get(ctx context.Context, name string) ([]*api.Film, error) {
 	/*
 		received, err := fs.Repositories.CacheRepo.FindByName(ctx, name)
 		if err != nil {

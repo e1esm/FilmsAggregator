@@ -3,13 +3,14 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"github.com/e1esm/FilmsAggregator/internal/models"
+	"github.com/e1esm/FilmsAggregator/internal/models/api"
+	"github.com/e1esm/FilmsAggregator/internal/models/db"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
 	"github.com/jackc/pgtype"
 )
 
-func (fr *FilmsRepository) FindByName(ctx context.Context, name string) ([]*models.Film, error) {
-	foundFilms := make([]*models.Film, 0)
+func (fr *FilmsRepository) FindByName(ctx context.Context, name string) ([]*api.Film, error) {
+	foundFilms := make([]*api.Film, 0)
 	query := "select * from film where title = $1;"
 	rows, err := fr.Pool.Query(ctx, query, name)
 	if err != nil {
@@ -18,18 +19,18 @@ func (fr *FilmsRepository) FindByName(ctx context.Context, name string) ([]*mode
 	i := -1
 	for rows.Next() {
 		i++
-		foundFilms = append(foundFilms, &models.Film{})
+		foundFilms = append(foundFilms, &api.Film{})
 		if err = rows.Scan(&foundFilms[i].ID, &foundFilms[i].Title, &foundFilms[i].ReleasedYear, &foundFilms[i].Revenue); err != nil {
 			return nil, fmt.Errorf("error occurred while scanning fetched values")
 		}
-		foundFilms[i].Crew.Actors = make([]models.Actor, 0)
-		foundFilms[i].Crew.Producers = make([]models.Producer, 0)
+		foundFilms[i].Crew.Actors = make([]api.Actor, 0)
+		foundFilms[i].Crew.Producers = make([]api.Producer, 0)
 	}
 
 	return fr.findCrew(ctx, foundFilms)
 }
 
-func (fr *FilmsRepository) findCrew(ctx context.Context, films []*models.Film) ([]*models.Film, error) {
+func (fr *FilmsRepository) findCrew(ctx context.Context, films []*api.Film) ([]*api.Film, error) {
 	query := `WITH Producers AS (
 		SELECT
 	producer.id AS producer_id,
@@ -71,7 +72,7 @@ func (fr *FilmsRepository) findCrew(ctx context.Context, films []*models.Film) (
 		if err != nil {
 			return nil, err
 		}
-		tempResponse := &models.ResponseTemp{}
+		tempResponse := &db.ResponseTemp{}
 		for rows.Next() {
 			err = rows.Scan(&tempResponse.ProducerID,
 				&tempResponse.ProducerName,
@@ -88,13 +89,13 @@ func (fr *FilmsRepository) findCrew(ctx context.Context, films []*models.Film) (
 			}
 			if tempResponse.ActorID.Status == pgtype.Null {
 				film.Crew.Producers = append(film.Crew.Producers,
-					*models.NewProducer(tempResponse.ProducerID.Bytes,
+					*api.NewProducer(tempResponse.ProducerID.Bytes,
 						tempResponse.ProducerName.String,
 						tempResponse.ProducerBirthdate.String,
 						tempResponse.ProducerGender.String))
 			} else {
 				film.Crew.Actors = append(film.Crew.Actors,
-					*models.NewActor(tempResponse.ActorID.Bytes,
+					*api.NewActor(tempResponse.ActorID.Bytes,
 						tempResponse.ActorName.String,
 						tempResponse.ActorBirthdate.String,
 						tempResponse.ActorGender.String,

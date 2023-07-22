@@ -1,11 +1,11 @@
 package uuid
 
 import (
-	"github.com/e1esm/FilmsAggregator/internal/models"
+	"github.com/e1esm/FilmsAggregator/internal/models/api"
 	"github.com/google/uuid"
 )
 
-func GenerateUUIDs(film *models.Film) {
+func GenerateUUIDs(film *api.Film) {
 	film.ID = uuid.New()
 	for i := 0; i < len(film.Crew.Producers); i++ {
 		film.Crew.Producers[i].ID = uuid.New()

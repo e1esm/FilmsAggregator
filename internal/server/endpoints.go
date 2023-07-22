@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 	"encoding/json"
-	"github.com/e1esm/FilmsAggregator/internal/models"
+	"github.com/e1esm/FilmsAggregator/internal/models/api"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
 	"go.uber.org/zap"
 	"io"
@@ -23,7 +23,7 @@ func (s *AggregatorServer) AddFilm(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	receivedFilm := &models.Film{}
+	receivedFilm := &api.Film{}
 	err = json.Unmarshal(content, receivedFilm)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
