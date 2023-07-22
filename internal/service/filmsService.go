@@ -4,9 +4,15 @@ import (
 	"context"
 	"github.com/e1esm/FilmsAggregator/internal/models"
 	"github.com/e1esm/FilmsAggregator/internal/repository"
+	"github.com/e1esm/FilmsAggregator/utils/config"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
 	"go.uber.org/zap"
+	"strconv"
 	"time"
+)
+
+const (
+	valid_cache_time_minutes = 15
 )
 
 type Service interface {
@@ -15,14 +21,25 @@ type Service interface {
 }
 
 type FilmsService struct {
-	Repositories *repository.Repositories
+	Repositories   *repository.Repositories
+	ExpirationTime int
 }
 
-func NewService(repositories *repository.Repositories) *FilmsService {
-	return &FilmsService{Repositories: repositories}
+func NewService(repositories *repository.Repositories, config config.Config) *FilmsService {
+	expirationTime, err := strconv.Atoi(config.CacheTime)
+	if err != nil {
+		logger.Logger.Error(err.Error())
+		expirationTime = valid_cache_time_minutes
+	}
+	return &FilmsService{Repositories: repositories, ExpirationTime: expirationTime}
 }
 
 func (fs *FilmsService) Add(ctx context.Context, film *models.Film) (models.Film, error) {
+	film.CacheTime = time.Now()
+	_, err := fs.Repositories.CacheRepo.Add(ctx, film)
+	if err != nil {
+		logger.Logger.Error(err.Error(), zap.String("film", film.Title))
+	}
 	inserted, err := fs.Repositories.MainRepo.Add(ctx, film)
 	if err != nil {
 
@@ -41,7 +58,7 @@ func (fs *FilmsService) Get(ctx context.Context, name string) ([]*models.Film, e
 	// TODO Change Hardcoded value
 	isUpToDate := true
 	for i := 0; i < len(received); i++ {
-		if current.Sub(received[i].CacheTime).Minutes() > 15 {
+		if int(current.Sub(received[i].CacheTime).Minutes()) > fs.ExpirationTime {
 			isUpToDate = false
 		}
 	}

@@ -8,16 +8,10 @@ import (
 	"github.com/e1esm/FilmsAggregator/utils/logger"
 	"github.com/restream/reindexer/v3"
 	_ "github.com/restream/reindexer/v3/bindings/cproto"
-	"strconv"
-)
-
-const (
-	default_Cache_Time = 15
 )
 
 type CacheRepository struct {
-	ExpirationTimeMinutes int
-	DB                    *reindexer.Reindexer
+	DB *reindexer.Reindexer
 }
 
 func NewCacheRepository(config config.Config) *CacheRepository {
@@ -33,13 +27,7 @@ func NewCacheRepository(config config.Config) *CacheRepository {
 		logger.Logger.Error(err.Error())
 		return nil
 	}
-
-	timeInMinutes, err := strconv.Atoi(config.CacheTime)
-	if err != nil {
-		logger.Logger.Error(err.Error())
-		timeInMinutes = default_Cache_Time
-	}
-	return &CacheRepository{DB: db, ExpirationTimeMinutes: timeInMinutes}
+	return &CacheRepository{DB: db}
 }
 
 func (cr *CacheRepository) Add(ctx context.Context, film *models.Film) (models.Film, error) {
