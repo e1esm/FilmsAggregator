@@ -2,26 +2,50 @@ package postgres
 
 import (
 	"context"
-	"fmt"
+	"database/sql"
+	"errors"
 	"github.com/e1esm/FilmsAggregator/internal/models/db"
 	"github.com/e1esm/FilmsAggregator/internal/models/general"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
 	"github.com/jackc/pgtype"
 )
 
+var (
+	queryError    = errors.New("error occurred while querying from DB")
+	scanningError = errors.New("error occurred while scanning values from DB")
+)
+
+func (fr *FilmsRepository) Verify(ctx context.Context, film *db.Film) bool {
+	doesAlreadyExist := false
+	var title string
+	query := "select title from film where hashcode = $1;"
+	err := fr.Pool.QueryRow(ctx, query, film.HashCode).Scan(&title)
+	switch {
+	case err == sql.ErrNoRows:
+		return doesAlreadyExist
+	case err != nil:
+		logger.Logger.Error(err.Error())
+	default:
+		doesAlreadyExist = true
+		return doesAlreadyExist
+	}
+
+	return doesAlreadyExist
+}
+
 func (fr *FilmsRepository) FindByName(ctx context.Context, name string) ([]*db.Film, error) {
 	foundFilms := make([]*db.Film, 0)
 	query := "select * from film where title = $1;"
 	rows, err := fr.Pool.Query(ctx, query, name)
 	if err != nil {
-		return nil, fmt.Errorf("error occurred while querying from DB")
+		return nil, queryError
 	}
 	i := -1
 	for rows.Next() {
 		i++
 		foundFilms = append(foundFilms, &db.Film{})
 		if err = rows.Scan(&foundFilms[i].ID, &foundFilms[i].Title, &foundFilms[i].ReleasedYear, &foundFilms[i].Revenue); err != nil {
-			return nil, fmt.Errorf("error occurred while scanning fetched values")
+			return nil, scanningError
 		}
 		foundFilms[i].Crew.Actors = make([]general.Actor, 0)
 		foundFilms[i].Crew.Producers = make([]general.Producer, 0)

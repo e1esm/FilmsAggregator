@@ -8,6 +8,7 @@ import (
 type Repository interface {
 	Add(context.Context, *db.Film) (db.Film, error)
 	FindByName(ctx context.Context, name string) ([]*db.Film, error)
+	Verify(ctx context.Context, film *db.Film) bool
 }
 
 type Cache interface {

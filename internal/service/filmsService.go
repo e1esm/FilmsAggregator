@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/e1esm/FilmsAggregator/internal/models/api"
 	"github.com/e1esm/FilmsAggregator/internal/models/db"
@@ -15,6 +16,10 @@ import (
 
 const (
 	valid_cache_time_minutes = 15
+)
+
+var (
+	alreadyExistsError = errors.New("film already exists")
 )
 
 type Service interface {
@@ -38,13 +43,16 @@ func NewService(repositories *repository.Repositories, config *config.Config) *F
 
 func (fs *FilmsService) Add(ctx context.Context, film *db.Film) (api.Film, error) {
 	film.CacheTime = time.Now()
+	doesExist := fs.Repositories.MainRepo.Verify(ctx, film)
+	if doesExist {
+		return api.Film{}, alreadyExistsError
+	}
 	_, err := fs.Repositories.CacheRepo.Add(ctx, film)
 	if err != nil {
 		logger.Logger.Error(err.Error(), zap.String("film", film.Title))
 	}
 	inserted, err := fs.Repositories.MainRepo.Add(ctx, film)
 	if err != nil {
-
 		return api.Film{}, err
 	}
 	return *api.NewFilm(inserted), nil

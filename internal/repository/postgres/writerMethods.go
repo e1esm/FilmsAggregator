@@ -46,11 +46,12 @@ func (fr *FilmsRepository) addFilm(ctx context.Context, film *db.Film) error {
 		fr.TransactionManager.Delete(film.ID)
 		return fmt.Errorf("tracsaction wasn't started, neither was deleted")
 	}
-	_, err := tx.Exec(ctx, "INSERT INTO film (id, title, release_year, revenue) VALUES ($1, $2, $3, $4);",
+	_, err := tx.Exec(ctx, "INSERT INTO film (id, title, release_year, revenue, hashcode) VALUES ($1, $2, $3, $4, $5);",
 		film.ID,
 		film.Title,
 		film.ReleasedYear,
-		film.Revenue)
+		film.Revenue,
+		film.HashCode)
 	if err != nil {
 		logger.Logger.Error("Couldn't have inserted film",
 			zap.String("title", film.Title),

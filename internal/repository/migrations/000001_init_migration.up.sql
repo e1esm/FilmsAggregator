@@ -2,7 +2,8 @@ CREATE TABLE film(
     id uuid PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     release_year INT NOT NULL,
-    revenue FLOAT8 NOT NULL
+    revenue FLOAT8 NOT NULL,
+    hashcode text NOT NUll
 );
 
 CREATE index idx_film_title ON film(title);
