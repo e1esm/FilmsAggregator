@@ -19,7 +19,6 @@ func main() {
 		cfg.Aggregator.Address,
 		cfg.Aggregator.Port),
 		currServer.Router))
-
 }
 
 func configureServer(service service.Service) *server.AggregatorServer {

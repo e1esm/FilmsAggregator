@@ -45,5 +45,3 @@ func (tm *TransactionManager) VerifyAndGet(id uuid.UUID) (pgx.Tx, error) {
 	}
 	return tx, nil
 }
-
-//Verify
