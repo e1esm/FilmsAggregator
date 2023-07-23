@@ -23,11 +23,15 @@ type Film struct {
 
 func NewFilm(id uuid.UUID, title string, crew general.Crew, releasedYear int, revenue float64) *Film {
 	film := &Film{ID: id, Title: title, Crew: crew, ReleasedYear: releasedYear, Revenue: revenue}
+	encode(film)
+	return film
+}
+
+func encode(film *Film) {
 	var b bytes.Buffer
 	err := json.NewEncoder(&b).Encode(film)
 	if err != nil {
-		return nil
+		film.HashCode = ""
 	}
 	film.HashCode = fmt.Sprintf("%v", md5.Sum(b.Bytes()))
-	return film
 }
