@@ -2,13 +2,17 @@ package postgres
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"github.com/e1esm/FilmsAggregator/internal/models/db"
 	"github.com/e1esm/FilmsAggregator/internal/models/general"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
 	"github.com/e1esm/FilmsAggregator/utils/uuid"
 	uuidHash "github.com/google/uuid"
 	"go.uber.org/zap"
+)
+
+var (
+	transactionError = errors.New("transaction wasn't started, neither it'd been deleted")
 )
 
 func (fr *FilmsRepository) Add(ctx context.Context, film *db.Film) (db.Film, error) {
@@ -44,7 +48,7 @@ func (fr *FilmsRepository) addFilm(ctx context.Context, film *db.Film) error {
 	tx := fr.TransactionManager.Get(film.ID)
 	if tx == nil {
 		fr.TransactionManager.Delete(film.ID)
-		return fmt.Errorf("tracsaction wasn't started, neither was deleted")
+		return transactionError
 	}
 	_, err := tx.Exec(ctx, "INSERT INTO film (id, title, release_year, revenue, hashcode) VALUES ($1, $2, $3, $4, $5);",
 		film.ID,

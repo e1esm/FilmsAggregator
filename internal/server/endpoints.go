@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/e1esm/FilmsAggregator/internal/models/api"
 	"github.com/e1esm/FilmsAggregator/internal/models/db"
+	"github.com/e1esm/FilmsAggregator/internal/service"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
 	"go.uber.org/zap"
 	"io"
@@ -35,7 +36,13 @@ func (s *AggregatorServer) AddFilm(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	insertedFilm, err := s.FilmsService.Add(ctx, dtoFilm)
-	if err != nil {
+	switch {
+	case err == service.AlreadyExistsError:
+		logger.Logger.Error(err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	case err != nil:
 		logger.Logger.Error(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return

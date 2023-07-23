@@ -19,7 +19,7 @@ const (
 )
 
 var (
-	alreadyExistsError = errors.New("film already exists")
+	AlreadyExistsError = errors.New("film already exists")
 )
 
 type Service interface {
@@ -45,7 +45,7 @@ func (fs *FilmsService) Add(ctx context.Context, film *db.Film) (api.Film, error
 	film.CacheTime = time.Now()
 	doesExist := fs.Repositories.MainRepo.Verify(ctx, film)
 	if doesExist {
-		return api.Film{}, alreadyExistsError
+		return api.Film{}, AlreadyExistsError
 	}
 	_, err := fs.Repositories.CacheRepo.Add(ctx, film)
 	if err != nil {
