@@ -49,7 +49,7 @@ func NewCacheRepository(config config.Config) *CacheRepository {
 	return &CacheRepository{db: db, namespace: config.Reindexer.DBName}
 }
 
-func (cr *CacheRepository) Add(ctx context.Context, film *dbModel.Film) (dbModel.Film, error) {
+func (cr *CacheRepository) Add(ctx context.Context, film dbModel.Film) (dbModel.Film, error) {
 	film.CacheTime = time.Now()
 	cr.db.WithContext(ctx)
 	_, err := cr.db.Insert(cr.namespace, film, "id=serial()")
@@ -57,7 +57,7 @@ func (cr *CacheRepository) Add(ctx context.Context, film *dbModel.Film) (dbModel
 		logger.Logger.Error(err.Error(), zap.String("film", film.Title))
 		return dbModel.Film{}, err
 	}
-	return *film, nil
+	return film, nil
 }
 
 func (cr *CacheRepository) FindByName(ctx context.Context, name string) ([]*dbModel.Film, error) {

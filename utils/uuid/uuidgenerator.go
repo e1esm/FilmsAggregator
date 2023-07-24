@@ -5,11 +5,24 @@ import (
 	"github.com/google/uuid"
 )
 
-func GenerateUUIDs(film *db.Film) {
+type Generator interface {
+	Generate() uuid.UUID
+	GenerateUUIDs(film db.Film) *db.Film
+}
+
+type UUIDGenerator struct {
+}
+
+func (gen *UUIDGenerator) Generate() uuid.UUID {
+	return uuid.New()
+}
+
+func (gen *UUIDGenerator) GenerateUUIDs(film db.Film) *db.Film {
 	for i := 0; i < len(film.Crew.Producers); i++ {
-		film.Crew.Producers[i].ID = uuid.New()
+		film.Crew.Producers[i].ID = gen.Generate()
 	}
 	for i := 0; i < len(film.Crew.Actors); i++ {
-		film.Crew.Actors[i].ID = uuid.New()
+		film.Crew.Actors[i].ID = gen.Generate()
 	}
+	return &film
 }

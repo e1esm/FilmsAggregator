@@ -11,26 +11,20 @@ import (
 )
 
 type Film struct {
-	ID           uuid.UUID    `json:"-" reindex:"-"`
-	CacheID      int64        `json:"ID" reindex:"id,,pk"`
-	Title        string       `json:"title" reindex:"title,tree"`
-	Crew         general.Crew `json:"crew"`
-	Revenue      float64      `json:"revenue" reindex:"revenue"`
-	ReleasedYear int          `json:"released_year" reindex:"released_year"`
-	CacheTime    time.Time    `json:"cache_time" reindex:"cache_time"`
-	HashCode     string       `reindex:"hash"`
+	ID           uuid.UUID     `json:"-" reindex:"-"`
+	CacheID      int64         `json:"ID" reindex:"id,,pk"`
+	Title        string        `json:"title" reindex:"title,tree"`
+	Crew         *general.Crew `json:"crew"`
+	Revenue      float64       `json:"revenue" reindex:"revenue"`
+	ReleasedYear int           `json:"released_year" reindex:"released_year"`
+	CacheTime    time.Time     `json:"cache_time" reindex:"cache_time"`
+	HashCode     string        `reindex:"hash"`
 }
 
-type Generator func() uuid.UUID
-
-func NewFilm(title string, crew general.Crew, releasedYear int, revenue float64, gen Generator) *Film {
-	film := &Film{ID: gen(), Title: title, Crew: crew, ReleasedYear: releasedYear, Revenue: revenue}
+func NewFilm(ID uuid.UUID, title string, crew *general.Crew, releasedYear int, revenue float64) *Film {
+	film := &Film{ID: ID, Title: title, Crew: crew, ReleasedYear: releasedYear, Revenue: revenue}
 	encode(film)
 	return film
-}
-
-func GenerateUUID() uuid.UUID {
-	return uuid.New()
 }
 
 func encode(film *Film) {

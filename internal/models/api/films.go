@@ -6,10 +6,10 @@ import (
 )
 
 type Film struct {
-	Title        string       `json:"title"`
-	Crew         general.Crew `json:"crew"`
-	ReleasedYear int          `json:"released_year"`
-	Revenue      float64      `json:"revenue"`
+	Title        string        `json:"title"`
+	Crew         *general.Crew `json:"crew"`
+	ReleasedYear int           `json:"released_year"`
+	Revenue      float64       `json:"revenue"`
 }
 
 func NewFilm(film db.Film) *Film {

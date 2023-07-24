@@ -47,8 +47,8 @@ func (fr *FilmsRepository) FindByName(ctx context.Context, name string) ([]*db.F
 		if err = rows.Scan(&foundFilms[i].ID, &foundFilms[i].Title, &foundFilms[i].ReleasedYear, &foundFilms[i].Revenue); err != nil {
 			return nil, scanningError
 		}
-		foundFilms[i].Crew.Actors = make([]general.Actor, 0)
-		foundFilms[i].Crew.Producers = make([]general.Producer, 0)
+		foundFilms[i].Crew.Actors = make([]*general.Actor, 0)
+		foundFilms[i].Crew.Producers = make([]*general.Producer, 0)
 	}
 
 	films, err := fr.findCrew(ctx, foundFilms)
@@ -117,13 +117,13 @@ func (fr *FilmsRepository) findCrew(ctx context.Context, films []*db.Film) ([]*d
 			}
 			if tempResponse.ActorID.Status == pgtype.Null {
 				film.Crew.Producers = append(film.Crew.Producers,
-					*general.NewProducer(tempResponse.ProducerID.Bytes,
+					general.NewProducer(tempResponse.ProducerID.Bytes,
 						tempResponse.ProducerName.String,
 						tempResponse.ProducerBirthdate.String,
 						tempResponse.ProducerGender.String))
 			} else {
 				film.Crew.Actors = append(film.Crew.Actors,
-					*general.NewActor(tempResponse.ActorID.Bytes,
+					general.NewActor(tempResponse.ActorID.Bytes,
 						tempResponse.ActorName.String,
 						tempResponse.ActorBirthdate.String,
 						tempResponse.ActorGender.String,

@@ -8,11 +8,9 @@ import (
 )
 
 func TestEncoding(t *testing.T) {
-	film := &Film{Title: "X", Crew: general.Crew{}, Revenue: 100, ReleasedYear: 2004}
+	film := &Film{Title: "X", Crew: &general.Crew{}, Revenue: 100, ReleasedYear: 2004}
 	encode(film)
-	filmReceived := NewFilm(film.Title, film.Crew, film.ReleasedYear, film.Revenue, func() uuid.UUID {
-		return uuid.UUID{}
-	})
+	filmReceived := NewFilm(uuid.UUID{}, film.Title, film.Crew, film.ReleasedYear, film.Revenue)
 
 	assert.Equal(t, film.HashCode, filmReceived.HashCode)
 }

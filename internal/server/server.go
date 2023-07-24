@@ -2,12 +2,14 @@ package server
 
 import (
 	"github.com/e1esm/FilmsAggregator/internal/service"
+	"github.com/e1esm/FilmsAggregator/utils/uuid"
 	"net/http"
 )
 
 type AggregatorServer struct {
 	Router       *http.ServeMux
 	FilmsService service.Service
+	IDGenerator  uuid.Generator
 }
 
 type Builder struct {
@@ -17,6 +19,11 @@ type Builder struct {
 func NewBuilder() *Builder {
 	builder := &Builder{Server: &AggregatorServer{}}
 	return builder
+}
+
+func (b *Builder) WithIDGenerator(idgen uuid.Generator) *Builder {
+	b.Server.IDGenerator = idgen
+	return b
 }
 
 func (b *Builder) WithEndpoint(endpoint string, handlerFunc http.HandlerFunc) *Builder {

@@ -8,13 +8,14 @@ import (
 	"github.com/e1esm/FilmsAggregator/internal/server"
 	"github.com/e1esm/FilmsAggregator/internal/service"
 	"github.com/e1esm/FilmsAggregator/utils/config"
+	"github.com/e1esm/FilmsAggregator/utils/uuid"
 	"log"
 	"net/http"
 )
 
 func main() {
 	cfg := config.NewConfig()
-	currServer := configureServer(configureService(cfg))
+	currServer := configureServer(configureService(cfg, &uuid.UUIDGenerator{}))
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d",
 		cfg.Aggregator.Address,
 		cfg.Aggregator.Port),
@@ -27,6 +28,7 @@ func configureServer(service service.Service) *server.AggregatorServer {
 		WithEndpoint("/api/add/", sb.Server.AddFilm).
 		WithEndpoint("/api/get/", sb.Server.GetFilms).
 		WithService(service).
+		WithIDGenerator(&uuid.UUIDGenerator{}).
 		Build()
 	return aggServ
 }
@@ -40,6 +42,6 @@ func configureRepositories(config *config.Config) *repository.Repositories {
 	return mainRepo
 }
 
-func configureService(config *config.Config) *service.FilmsService {
-	return service.NewService(configureRepositories(config), config)
+func configureService(config *config.Config, generator uuid.Generator) *service.FilmsService {
+	return service.NewService(configureRepositories(config), config, generator)
 }

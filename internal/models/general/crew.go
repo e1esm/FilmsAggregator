@@ -3,8 +3,8 @@ package general
 import "github.com/google/uuid"
 
 type Crew struct {
-	Actors    []Actor    `json:"actors"`
-	Producers []Producer `json:"producers"`
+	Actors    []*Actor    `json:"actors"`
+	Producers []*Producer `json:"producers"`
 }
 
 type Person struct {

@@ -15,6 +15,16 @@ import (
 	"testing"
 )
 
+type MockIDGenerator struct {
+}
+
+func (m *MockIDGenerator) Generate() uuid.UUID {
+	return uuid.UUID{}
+}
+func (m *MockIDGenerator) GenerateUUIDs(film db.Film) *db.Film {
+	return &film
+}
+
 func TestAggregatorServer_AddFilm(t *testing.T) {
 	type mockBehaviour func(s *mock_service.MockService, film db.Film)
 	testTable := []struct {
@@ -40,10 +50,9 @@ func TestAggregatorServer_AddFilm(t *testing.T) {
 
 			filmService := mock_service.NewMockService(ctrl)
 
-			apiTest.mockBehaviour(filmService, *db.NewFilm(apiTest.inputFilm.Title, apiTest.inputFilm.Crew, apiTest.inputFilm.ReleasedYear, apiTest.inputFilm.Revenue, func() uuid.UUID {
-				return uuid.UUID{}
-			}))
-			server := AggregatorServer{FilmsService: filmService}
+			generator := &MockIDGenerator{}
+			apiTest.mockBehaviour(filmService, *db.NewFilm(generator.Generate(), apiTest.inputFilm.Title, apiTest.inputFilm.Crew, apiTest.inputFilm.ReleasedYear, apiTest.inputFilm.Revenue))
+			server := AggregatorServer{FilmsService: filmService, IDGenerator: generator}
 			server.Router = http.NewServeMux()
 
 			server.Router.HandleFunc("/api/add/", server.AddFilm)

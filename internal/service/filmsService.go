@@ -9,6 +9,7 @@ import (
 	"github.com/e1esm/FilmsAggregator/internal/repository"
 	"github.com/e1esm/FilmsAggregator/utils/config"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
+	"github.com/e1esm/FilmsAggregator/utils/uuid"
 	"go.uber.org/zap"
 	"strconv"
 	"time"
@@ -34,7 +35,7 @@ type FilmsService struct {
 	ExpirationTime int
 }
 
-func NewService(repositories *repository.Repositories, config *config.Config) *FilmsService {
+func NewService(repositories *repository.Repositories, config *config.Config, generator uuid.Generator) *FilmsService {
 	expirationTime, err := strconv.Atoi(config.Reindexer.CacheTime)
 	if err != nil {
 		logger.Logger.Error(err.Error())
@@ -49,11 +50,13 @@ func (fs *FilmsService) Add(ctx context.Context, film db.Film) (api.Film, error)
 	if doesExist {
 		return api.Film{}, AlreadyExistsError
 	}
-	_, err := fs.Repositories.CacheRepo.Add(ctx, &film)
+	_, err := fs.Repositories.CacheRepo.Add(ctx, film)
 	if err != nil {
 		logger.Logger.Error(err.Error(), zap.String("film", film.Title))
 	}
-	inserted, err := fs.Repositories.MainRepo.Add(ctx, &film)
+	logger.Logger.Info(fmt.Sprintf("%v", film.Crew.Producers[0].ID))
+	logger.Logger.Info(fmt.Sprintf("%v", film.Crew.Actors[0].ID))
+	inserted, err := fs.Repositories.MainRepo.Add(ctx, film)
 	if err != nil {
 		return api.Film{}, err
 	}

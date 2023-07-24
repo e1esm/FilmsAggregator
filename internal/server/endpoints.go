@@ -30,8 +30,8 @@ func (s *AggregatorServer) AddFilm(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	dtoFilm := db.NewFilm(receivedFilm.Title, receivedFilm.Crew, receivedFilm.ReleasedYear, receivedFilm.Revenue, db.GenerateUUID)
-
+	dtoFilm := db.NewFilm(s.IDGenerator.Generate(), receivedFilm.Title, receivedFilm.Crew, receivedFilm.ReleasedYear, receivedFilm.Revenue)
+	dtoFilm = s.IDGenerator.GenerateUUIDs(*dtoFilm)
 	insertedFilm, err := s.FilmsService.Add(context.Background(), *dtoFilm)
 	switch {
 	case err == service.AlreadyExistsError:
