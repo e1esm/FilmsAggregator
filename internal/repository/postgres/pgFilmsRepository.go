@@ -15,7 +15,7 @@ type FilmsRepository struct {
 	TransactionManager *TransactionManager
 }
 
-func NewFilmsRepository(cfg config.Config, manager *TransactionManager) repository.Repository {
+func NewFilmsRepository(cfg config.Config, manager *TransactionManager) repository.CompleteRepository {
 	dbUrl := fmt.Sprintf("postgresql://%s:%s@%s:%d/%s?pool_max_conns=%d",
 		cfg.Postgres.User,
 		cfg.Postgres.Password,

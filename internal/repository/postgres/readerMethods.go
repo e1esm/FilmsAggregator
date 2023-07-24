@@ -47,9 +47,11 @@ func (fr *FilmsRepository) FindByName(ctx context.Context, name string) ([]*db.F
 	for rows.Next() {
 		i++
 		foundFilms = append(foundFilms, &db.Film{})
-		if err = rows.Scan(&foundFilms[i].ID, &foundFilms[i].Title, &foundFilms[i].Genre, &foundFilms[i].ReleasedYear, &foundFilms[i].Revenue); err != nil {
+		if err = rows.Scan(&foundFilms[i].ID, &foundFilms[i].Title, &foundFilms[i].Genre, &foundFilms[i].ReleasedYear, &foundFilms[i].Revenue, &foundFilms[i].HashCode); err != nil {
+			logger.Logger.Error(err.Error())
 			return nil, scanningError
 		}
+		foundFilms[i].Crew = &general.Crew{}
 		foundFilms[i].Crew.Actors = make([]*general.Actor, 0)
 		foundFilms[i].Crew.Producers = make([]*general.Producer, 0)
 	}
@@ -135,4 +137,30 @@ func (fr *FilmsRepository) findCrew(ctx context.Context, films []*db.Film) ([]*d
 		}
 	}
 	return films, nil
+}
+
+func (fr *FilmsRepository) FindAll(ctx context.Context) ([]db.Film, error) {
+	titles := make([]string, 0)
+	dbFilms := make([]db.Film, 0)
+	rows, err := fr.Pool.Query(ctx, "SELECT title FROM film;")
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var title string
+		rows.Scan(&title)
+		titles = append(titles, title)
+	}
+
+	for _, title := range titles {
+		received, err := fr.FindByName(ctx, title)
+		if err != nil {
+			return nil, err
+		}
+		for _, film := range received {
+			dbFilms = append(dbFilms, *film)
+		}
+	}
+	return dbFilms, nil
 }

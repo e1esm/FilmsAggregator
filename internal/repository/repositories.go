@@ -6,7 +6,16 @@ import (
 	"github.com/e1esm/FilmsAggregator/internal/models/db"
 )
 
-type Repository interface {
+type ScrapperRepository interface {
+	FindAll(context.Context) ([]db.Film, error)
+}
+
+type CompleteRepository interface {
+	ScrapperRepository
+	MainRepository
+}
+
+type MainRepository interface {
 	Add(context.Context, db.Film) (db.Film, error)
 	FindByName(ctx context.Context, name string) ([]*db.Film, error)
 	Verify(ctx context.Context, film *db.Film) bool
@@ -14,12 +23,12 @@ type Repository interface {
 }
 
 type Cache interface {
-	Repository
+	MainRepository
 }
 
 type Repositories struct {
 	CacheRepo Cache
-	MainRepo  Repository
+	MainRepo  CompleteRepository
 }
 
 type RepositoriesBuilder struct {
@@ -31,7 +40,7 @@ func NewRepositoriesBuilder() *RepositoriesBuilder {
 	return &reposBuilder
 }
 
-func (rb *RepositoriesBuilder) WithMainRepo(repository Repository) *RepositoriesBuilder {
+func (rb *RepositoriesBuilder) WithMainRepo(repository CompleteRepository) *RepositoriesBuilder {
 	rb.Repositories.MainRepo = repository
 	return rb
 }

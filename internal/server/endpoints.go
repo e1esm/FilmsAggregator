@@ -106,6 +106,31 @@ func (s *AggregatorServer) DeleteFilm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	content, err := json.Marshal(deleteRequest)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(content)
+}
+
+func (s *AggregatorServer) GetAllFilms(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	films, err := s.FilmsService.GetAll(r.Context())
+	if err != nil {
+		logger.Logger.Error(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	content, err := json.Marshal(films)
+	if err != nil {
+		logger.Logger.Error(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(content)
 }

@@ -29,6 +29,7 @@ type Service interface {
 	Add(context.Context, db.Film) (api.Film, error)
 	Get(ctx context.Context, name string) ([]*api.Film, error)
 	Delete(ctx context.Context, requestedFilm api.DeleteRequest) error
+	GetAll(ctx context.Context) ([]api.Film, error)
 }
 
 type FilmsService struct {
@@ -116,4 +117,16 @@ func (fs *FilmsService) Delete(ctx context.Context, request api.DeleteRequest) e
 		return err
 	}
 	return nil
+}
+
+func (fs *FilmsService) GetAll(ctx context.Context) ([]api.Film, error) {
+	films, err := fs.Repositories.MainRepo.FindAll(ctx)
+	filmsAPI := make([]api.Film, len(films))
+	for i := 0; i < len(films); i++ {
+		filmsAPI[i] = *api.NewFilm(films[i])
+	}
+	if err != nil {
+		return filmsAPI, err
+	}
+	return filmsAPI, nil
 }
