@@ -45,24 +45,21 @@ func TestAggregatorServer_AddFilm(t *testing.T) {
 		},
 	}
 
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	generator := &mocks.MockIDGenerator{}
+	filmService := mock_service.NewMockService(ctrl)
+	server := AggregatorServer{FilmsService: filmService, IDGenerator: generator}
+	server.Router = http.NewServeMux()
+	server.Router.HandleFunc("/api/add/", server.AddFilm)
+
 	for _, apiTest := range testTable {
 		t.Run(apiTest.name, func(t *testing.T) {
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
-
-			filmService := mock_service.NewMockService(ctrl)
-
-			generator := &mocks.MockIDGenerator{}
 			apiTest.mockBehaviour(filmService, *db.NewFilm(generator.Generate(), apiTest.inputFilm.Title, apiTest.inputFilm.Crew, apiTest.inputFilm.ReleasedYear, apiTest.inputFilm.Revenue, apiTest.inputFilm.Genre))
-			server := AggregatorServer{FilmsService: filmService, IDGenerator: generator}
-			server.Router = http.NewServeMux()
-
-			server.Router.HandleFunc("/api/add/", server.AddFilm)
 			content, _ := json.Marshal(apiTest.inputFilm)
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("POST", "http://localhost:8080/api/add/", bytes.NewBufferString(string(content)))
 			server.Router.ServeHTTP(w, req)
-
 			assert.Equal(t, apiTest.expectedStatusCode, w.Code)
 		})
 	}
@@ -85,24 +82,22 @@ func TestAggregatorServer_GetFilms(t *testing.T) {
 			expectedStatusCode: 200,
 		},
 	}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	generator := &mocks.MockIDGenerator{}
+	filmService := mock_service.NewMockService(ctrl)
+	server := AggregatorServer{FilmsService: filmService, IDGenerator: generator}
+	server.Router = http.NewServeMux()
+	server.Router.HandleFunc("/api/get", server.GetFilms)
+
 	for _, apiTest := range testTable {
 		t.Run(apiTest.testName, func(t *testing.T) {
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
-
-			filmService := mock_service.NewMockService(ctrl)
-
-			generator := &mocks.MockIDGenerator{}
 			apiTest.mockBehaviour(filmService, apiTest.filmName)
-			server := AggregatorServer{FilmsService: filmService, IDGenerator: generator}
-			server.Router = http.NewServeMux()
-
-			server.Router.HandleFunc("/api/get", server.GetFilms)
 			w := httptest.NewRecorder()
 			path := fmt.Sprintf("http://localhost:8080/api/get?name=%s", apiTest.filmName)
 			req := httptest.NewRequest("GET", path, nil)
 			server.Router.ServeHTTP(w, req)
-
 			assert.Equal(t, apiTest.expectedStatusCode, w.Code)
 		})
 	}
@@ -139,18 +134,17 @@ func TestAggregatorServer_GetAllFilms(t *testing.T) {
 		},
 	}
 
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	filmService := mock_service.NewMockService(ctrl)
+	generator := &mocks.MockIDGenerator{}
+	server := AggregatorServer{FilmsService: filmService, IDGenerator: generator}
+	server.Router = http.NewServeMux()
+	server.Router.HandleFunc("/api/all/", server.GetAllFilms)
+
 	for _, apiTest := range testTable {
 		t.Run(apiTest.testName, func(t *testing.T) {
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
-
-			filmService := mock_service.NewMockService(ctrl)
-
-			generator := &mocks.MockIDGenerator{}
-			server := AggregatorServer{FilmsService: filmService, IDGenerator: generator}
-			server.Router = http.NewServeMux()
 			apiTest.mockBehaviour(filmService)
-			server.Router.HandleFunc("/api/all/", server.GetAllFilms)
 			w := httptest.NewRecorder()
 			path := fmt.Sprintf("http://localhost:8080/api/all/")
 			req := httptest.NewRequest("GET", path, nil)
@@ -193,18 +187,17 @@ func TestAggregatorServer_DeleteFilm(t *testing.T) {
 		},
 	}
 
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	filmService := mock_service.NewMockService(ctrl)
+	generator := &mocks.MockIDGenerator{}
+	server := AggregatorServer{FilmsService: filmService, IDGenerator: generator}
+	server.Router = http.NewServeMux()
+	server.Router.HandleFunc("/api/delete/", server.DeleteFilm)
+
 	for _, apiTest := range testTable {
 		t.Run(apiTest.title, func(t *testing.T) {
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
-
-			filmService := mock_service.NewMockService(ctrl)
-
-			generator := &mocks.MockIDGenerator{}
-			server := AggregatorServer{FilmsService: filmService, IDGenerator: generator}
-			server.Router = http.NewServeMux()
 			apiTest.mockBehaviour(filmService, apiTest.deleteRequest)
-			server.Router.HandleFunc("/api/delete/", server.DeleteFilm)
 			w := httptest.NewRecorder()
 			urlPath := fmt.Sprintf("http://localhost:8080/api/delete/?title=%s&genre=%s&released_year=%d",
 				apiTest.deleteRequest.Title,
