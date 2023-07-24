@@ -24,6 +24,7 @@ type MainRepository interface {
 
 type Cache interface {
 	MainRepository
+	DeleteCachedWithCtx(context.Context) error
 }
 
 type Repositories struct {

@@ -105,3 +105,8 @@ func (cr *CacheRepository) Verify(ctx context.Context, film *dbModel.Film) bool 
 		return alreadyExists
 	}
 }
+
+func (cr *CacheRepository) DeleteCachedWithCtx(ctx context.Context) error {
+	deleteRequest := ctx.Value("request")
+	return cr.Delete(ctx, deleteRequest.(api.DeleteRequest))
+}

@@ -108,10 +108,13 @@ func (fs *FilmsService) Get(ctx context.Context, name string) ([]*api.Film, erro
 }
 
 func (fs *FilmsService) Delete(ctx context.Context, request api.DeleteRequest) error {
-	err := fs.Repositories.CacheRepo.Delete(ctx, request)
+	cacheCtx := context.WithValue(ctx, "request", request)
+	err := fs.Repositories.CacheRepo.DeleteCachedWithCtx(cacheCtx)
 	if err != nil {
 		return err
 	}
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
 	err = fs.Repositories.MainRepo.Delete(ctx, request)
 	if err != nil {
 		return err
