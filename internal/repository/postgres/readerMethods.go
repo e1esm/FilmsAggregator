@@ -44,7 +44,7 @@ func (fr *FilmsRepository) FindByName(ctx context.Context, name string) ([]*db.F
 	for rows.Next() {
 		i++
 		foundFilms = append(foundFilms, &db.Film{})
-		if err = rows.Scan(&foundFilms[i].ID, &foundFilms[i].Title, &foundFilms[i].ReleasedYear, &foundFilms[i].Revenue); err != nil {
+		if err = rows.Scan(&foundFilms[i].ID, &foundFilms[i].Title, &foundFilms[i].Genre, &foundFilms[i].ReleasedYear, &foundFilms[i].Revenue); err != nil {
 			return nil, scanningError
 		}
 		foundFilms[i].Crew.Actors = make([]*general.Actor, 0)

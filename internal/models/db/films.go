@@ -19,10 +19,11 @@ type Film struct {
 	ReleasedYear int           `json:"released_year" reindex:"released_year"`
 	CacheTime    time.Time     `json:"cache_time" reindex:"cache_time"`
 	HashCode     string        `reindex:"hash"`
+	Genre        string        `json:"genre" reindex:"genre"`
 }
 
-func NewFilm(ID uuid.UUID, title string, crew *general.Crew, releasedYear int, revenue float64) *Film {
-	film := &Film{ID: ID, Title: title, Crew: crew, ReleasedYear: releasedYear, Revenue: revenue}
+func NewFilm(ID uuid.UUID, title string, crew *general.Crew, releasedYear int, revenue float64, Genre string) *Film {
+	film := &Film{ID: ID, Title: title, Crew: crew, ReleasedYear: releasedYear, Revenue: revenue, Genre: Genre}
 	encode(film)
 	return film
 }

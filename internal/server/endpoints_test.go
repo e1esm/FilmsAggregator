@@ -52,7 +52,7 @@ func TestAggregatorServer_AddFilm(t *testing.T) {
 			filmService := mock_service.NewMockService(ctrl)
 
 			generator := &mocks.MockIDGenerator{}
-			apiTest.mockBehaviour(filmService, *db.NewFilm(generator.Generate(), apiTest.inputFilm.Title, apiTest.inputFilm.Crew, apiTest.inputFilm.ReleasedYear, apiTest.inputFilm.Revenue))
+			apiTest.mockBehaviour(filmService, *db.NewFilm(generator.Generate(), apiTest.inputFilm.Title, apiTest.inputFilm.Crew, apiTest.inputFilm.ReleasedYear, apiTest.inputFilm.Revenue, apiTest.inputFilm.Genre))
 			server := AggregatorServer{FilmsService: filmService, IDGenerator: generator}
 			server.Router = http.NewServeMux()
 

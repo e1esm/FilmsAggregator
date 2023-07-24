@@ -10,6 +10,7 @@ type Film struct {
 	Crew         *general.Crew `json:"crew"`
 	ReleasedYear int           `json:"released_year"`
 	Revenue      float64       `json:"revenue"`
+	Genre        string
 }
 
 func NewFilm(film db.Film) *Film {
@@ -18,5 +19,6 @@ func NewFilm(film db.Film) *Film {
 		Crew:         film.Crew,
 		Revenue:      film.Revenue,
 		ReleasedYear: film.ReleasedYear,
+		Genre:        film.Genre,
 	}
 }

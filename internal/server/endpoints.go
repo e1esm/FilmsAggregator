@@ -30,7 +30,7 @@ func (s *AggregatorServer) AddFilm(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	dtoFilm := db.NewFilm(s.IDGenerator.Generate(), receivedFilm.Title, receivedFilm.Crew, receivedFilm.ReleasedYear, receivedFilm.Revenue)
+	dtoFilm := db.NewFilm(s.IDGenerator.Generate(), receivedFilm.Title, receivedFilm.Crew, receivedFilm.ReleasedYear, receivedFilm.Revenue, receivedFilm.Genre)
 	dtoFilm = s.IDGenerator.GenerateUUIDs(*dtoFilm)
 	insertedFilm, err := s.FilmsService.Add(context.Background(), *dtoFilm)
 	switch {
