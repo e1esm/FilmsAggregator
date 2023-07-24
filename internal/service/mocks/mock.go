@@ -51,6 +51,20 @@ func (mr *MockServiceMockRecorder) Add(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Add", reflect.TypeOf((*MockService)(nil).Add), arg0, arg1)
 }
 
+// Delete mocks base method.
+func (m *MockService) Delete(ctx context.Context, requestedFilm api.DeleteRequest) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", ctx, requestedFilm)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockServiceMockRecorder) Delete(ctx, requestedFilm interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockService)(nil).Delete), ctx, requestedFilm)
+}
+
 // Get mocks base method.
 func (m *MockService) Get(ctx context.Context, name string) ([]*api.Film, error) {
 	m.ctrl.T.Helper()
@@ -64,4 +78,19 @@ func (m *MockService) Get(ctx context.Context, name string) ([]*api.Film, error)
 func (mr *MockServiceMockRecorder) Get(ctx, name interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockService)(nil).Get), ctx, name)
+}
+
+// GetAll mocks base method.
+func (m *MockService) GetAll(ctx context.Context) ([]api.Film, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAll", ctx)
+	ret0, _ := ret[0].([]api.Film)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAll indicates an expected call of GetAll.
+func (mr *MockServiceMockRecorder) GetAll(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockService)(nil).GetAll), ctx)
 }

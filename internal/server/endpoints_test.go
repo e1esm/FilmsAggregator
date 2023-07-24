@@ -10,6 +10,7 @@ import (
 	"github.com/e1esm/FilmsAggregator/internal/service"
 	mock_service "github.com/e1esm/FilmsAggregator/internal/service/mocks"
 	"github.com/e1esm/FilmsAggregator/utils/uuid/mocks"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 	"net/http"
@@ -100,6 +101,116 @@ func TestAggregatorServer_GetFilms(t *testing.T) {
 			w := httptest.NewRecorder()
 			path := fmt.Sprintf("http://localhost:8080/api/get?name=%s", apiTest.filmName)
 			req := httptest.NewRequest("GET", path, nil)
+			server.Router.ServeHTTP(w, req)
+
+			assert.Equal(t, apiTest.expectedStatusCode, w.Code)
+		})
+	}
+}
+
+func TestAggregatorServer_GetAllFilms(t *testing.T) {
+	dbFilm := db.NewFilm(uuid.New(), "XXX", nil, 2004, 10002.99, "fantasy")
+	type mockBehaviour func(s *mock_service.MockService)
+	testTable := []struct {
+		testName           string
+		mockBehaviour      mockBehaviour
+		expectedStatusCode int
+		insertedFilm       db.Film
+	}{
+		{
+			testName: "Not found",
+			mockBehaviour: func(s *mock_service.MockService) {
+				s.EXPECT().GetAll(context.Background()).Return([]api.Film{}, nil)
+			},
+			expectedStatusCode: 404,
+		}, {
+			testName: "Found",
+			mockBehaviour: func(s *mock_service.MockService) {
+				s.EXPECT().GetAll(context.Background()).Return([]api.Film{*api.NewFilm(*dbFilm)}, nil)
+			},
+			insertedFilm:       *dbFilm,
+			expectedStatusCode: 200,
+		}, {
+			testName: "InternalError",
+			mockBehaviour: func(s *mock_service.MockService) {
+				s.EXPECT().GetAll(context.Background()).Return(nil, fmt.Errorf("error while scanning"))
+			},
+			expectedStatusCode: 500,
+		},
+	}
+
+	for _, apiTest := range testTable {
+		t.Run(apiTest.testName, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			filmService := mock_service.NewMockService(ctrl)
+
+			generator := &mocks.MockIDGenerator{}
+			server := AggregatorServer{FilmsService: filmService, IDGenerator: generator}
+			server.Router = http.NewServeMux()
+			apiTest.mockBehaviour(filmService)
+			server.Router.HandleFunc("/api/all/", server.GetAllFilms)
+			w := httptest.NewRecorder()
+			path := fmt.Sprintf("http://localhost:8080/api/all/")
+			req := httptest.NewRequest("GET", path, nil)
+			server.Router.ServeHTTP(w, req)
+
+			assert.Equal(t, apiTest.expectedStatusCode, w.Code)
+		})
+	}
+}
+
+func TestAggregatorServer_DeleteFilm(t *testing.T) {
+	type mockBehaviour func(s *mock_service.MockService, request api.DeleteRequest)
+	testTable := []struct {
+		title              string
+		deleteRequest      api.DeleteRequest
+		expectedStatusCode int
+		mockBehaviour      mockBehaviour
+	}{
+		{
+			title:              "Deleted",
+			deleteRequest:      api.DeleteRequest{Title: "XXX", Genre: "Fantasy", ReleasedYear: 2004},
+			expectedStatusCode: 200,
+			mockBehaviour: func(s *mock_service.MockService, request api.DeleteRequest) {
+				s.EXPECT().Delete(context.Background(), request).Return(nil)
+			},
+		}, {
+			title:              "Bad Request",
+			deleteRequest:      api.DeleteRequest{},
+			expectedStatusCode: 400,
+			mockBehaviour: func(s *mock_service.MockService, request api.DeleteRequest) {
+				s.EXPECT().Delete(context.Background(), request).Return(nil).AnyTimes()
+			},
+		}, {
+			title:         "Error while deleting",
+			deleteRequest: api.DeleteRequest{Title: "YYY", Genre: "fantasy", ReleasedYear: 1996},
+			mockBehaviour: func(s *mock_service.MockService, request api.DeleteRequest) {
+				s.EXPECT().Delete(context.Background(), request).Return(fmt.Errorf("error while deleting"))
+			},
+			expectedStatusCode: 500,
+		},
+	}
+
+	for _, apiTest := range testTable {
+		t.Run(apiTest.title, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			filmService := mock_service.NewMockService(ctrl)
+
+			generator := &mocks.MockIDGenerator{}
+			server := AggregatorServer{FilmsService: filmService, IDGenerator: generator}
+			server.Router = http.NewServeMux()
+			apiTest.mockBehaviour(filmService, apiTest.deleteRequest)
+			server.Router.HandleFunc("/api/delete/", server.DeleteFilm)
+			w := httptest.NewRecorder()
+			urlPath := fmt.Sprintf("http://localhost:8080/api/delete/?title=%s&genre=%s&released_year=%d",
+				apiTest.deleteRequest.Title,
+				apiTest.deleteRequest.Genre,
+				apiTest.deleteRequest.ReleasedYear)
+			req := httptest.NewRequest("DELETE", urlPath, nil)
 			server.Router.ServeHTTP(w, req)
 
 			assert.Equal(t, apiTest.expectedStatusCode, w.Code)

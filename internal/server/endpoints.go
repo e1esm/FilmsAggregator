@@ -122,6 +122,10 @@ func (s *AggregatorServer) GetAllFilms(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	if len(films) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 
 	content, err := json.Marshal(films)
 	if err != nil {
