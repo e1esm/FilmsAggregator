@@ -18,6 +18,9 @@ func (gen *UUIDGenerator) Generate() uuid.UUID {
 }
 
 func (gen *UUIDGenerator) GenerateUUIDs(film db.Film) *db.Film {
+	if film.Crew == nil || film.Crew.Producers == nil || film.Crew.Actors == nil {
+		return &film
+	}
 	for i := 0; i < len(film.Crew.Producers); i++ {
 		film.Crew.Producers[i].ID = gen.Generate()
 	}
