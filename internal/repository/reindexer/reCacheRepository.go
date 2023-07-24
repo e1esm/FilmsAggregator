@@ -81,6 +81,7 @@ func (cr *CacheRepository) FindByName(ctx context.Context, name string) ([]*dbMo
 
 func (cr *CacheRepository) Delete(ctx context.Context, name string) (dbModel.Film, error) {
 	query := fmt.Sprintf("DELETE FROM %s WHERE \"title\" = '%s';", cr.namespace, name)
+	cr.db.WithContext(ctx)
 	iterator, err := cr.db.ExecSQL(query).FetchOne()
 	if err != nil {
 		return dbModel.Film{}, err
