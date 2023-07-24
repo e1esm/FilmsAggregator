@@ -10,6 +10,7 @@ import (
 	"go.uber.org/zap"
 	"io"
 	"net/http"
+	"strconv"
 )
 
 func (s *AggregatorServer) AddFilm(w http.ResponseWriter, r *http.Request) {
@@ -80,4 +81,31 @@ func (s *AggregatorServer) GetFilms(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(bytes)
+}
+
+func (s *AggregatorServer) DeleteFilm(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	var (
+		title             = r.URL.Query().Get("title")
+		genre             = r.URL.Query().Get("genre")
+		releasedYear, err = strconv.Atoi(r.URL.Query().Get("released_year"))
+	)
+	if title == "" || genre == "" || releasedYear == 0 || err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	deleteRequest := api.DeleteRequest{Title: title, Genre: genre, ReleasedYear: releasedYear}
+
+	err = s.FilmsService.Delete(r.Context(), deleteRequest)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	content, err := json.Marshal(deleteRequest)
+	w.WriteHeader(http.StatusOK)
+	w.Write(content)
 }

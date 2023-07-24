@@ -27,6 +27,7 @@ func configureServer(service service.Service) *server.AggregatorServer {
 	aggServ := sb.WithRouter(http.NewServeMux()).
 		WithEndpoint("/api/add/", sb.Server.AddFilm).
 		WithEndpoint("/api/get/", sb.Server.GetFilms).
+		WithEndpoint("/api/delete/", sb.Server.DeleteFilm).
 		WithService(service).
 		WithIDGenerator(&uuid.UUIDGenerator{}).
 		Build()

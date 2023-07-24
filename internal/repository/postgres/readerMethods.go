@@ -8,6 +8,7 @@ import (
 	"github.com/e1esm/FilmsAggregator/internal/models/general"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
 	"github.com/jackc/pgtype"
+	"time"
 )
 
 var (
@@ -34,6 +35,8 @@ func (fr *FilmsRepository) Verify(ctx context.Context, film *db.Film) bool {
 }
 
 func (fr *FilmsRepository) FindByName(ctx context.Context, name string) ([]*db.Film, error) {
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
 	foundFilms := make([]*db.Film, 0)
 	query := "select * from film where title = $1;"
 	rows, err := fr.Pool.Query(ctx, query, name)

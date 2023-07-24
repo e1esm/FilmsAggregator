@@ -35,6 +35,6 @@ CREATE TABLE crew(
     film_id uuid,
     FOREIGN KEY (actor_id) REFERENCES actor(id),
     FOREIGN KEY (producer_id) REFERENCES producer(id),
-    FOREIGN KEY (film_id) REFERENCES film(id)
+    FOREIGN KEY (film_id) REFERENCES film(id) ON DELETE CASCADE
 );
 

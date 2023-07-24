@@ -3,6 +3,7 @@ package reindexer
 import (
 	"context"
 	"fmt"
+	"github.com/e1esm/FilmsAggregator/internal/models/api"
 	dbModel "github.com/e1esm/FilmsAggregator/internal/models/db"
 	"github.com/e1esm/FilmsAggregator/utils/config"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
@@ -79,14 +80,14 @@ func (cr *CacheRepository) FindByName(ctx context.Context, name string) ([]*dbMo
 	return films, nil
 }
 
-func (cr *CacheRepository) Delete(ctx context.Context, name string) (dbModel.Film, error) {
-	query := fmt.Sprintf("DELETE FROM %s WHERE \"title\" = '%s';", cr.namespace, name)
+func (cr *CacheRepository) Delete(ctx context.Context, request api.DeleteRequest) error {
+	query := fmt.Sprintf("DELETE FROM %s WHERE \"title\" = '%s' AND \"genre\"= '%s' AND \"released_year\"= %d;", cr.namespace, request.Title, request.Genre, request.ReleasedYear)
 	cr.db.WithContext(ctx)
-	iterator, err := cr.db.ExecSQL(query).FetchOne()
+	_, err := cr.db.ExecSQL(query).FetchOne()
 	if err != nil {
-		return dbModel.Film{}, err
+		return err
 	}
-	return iterator.(dbModel.Film), nil
+	return nil
 }
 
 func (cr *CacheRepository) Verify(ctx context.Context, film *dbModel.Film) bool {

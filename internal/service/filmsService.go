@@ -28,6 +28,7 @@ var (
 type Service interface {
 	Add(context.Context, db.Film) (api.Film, error)
 	Get(ctx context.Context, name string) ([]*api.Film, error)
+	Delete(ctx context.Context, requestedFilm api.DeleteRequest) error
 }
 
 type FilmsService struct {
@@ -86,7 +87,7 @@ func (fs *FilmsService) Get(ctx context.Context, name string) ([]*api.Film, erro
 		return apiFilms, nil
 	} else {
 		for i := 0; i < len(received); i++ {
-			_, err = fs.Repositories.CacheRepo.Delete(ctx, received[i].Title)
+			err = fs.Repositories.CacheRepo.Delete(ctx, api.DeleteRequest{received[i].Genre, received[i].Title, received[i].ReleasedYear})
 			if err != nil {
 				logger.Logger.Error("Couldn't have deleted film from cache",
 					zap.String("err", err.Error()),
@@ -103,4 +104,16 @@ func (fs *FilmsService) Get(ctx context.Context, name string) ([]*api.Film, erro
 		apiFilms = append(apiFilms, api.NewFilm(*received[i]))
 	}
 	return apiFilms, nil
+}
+
+func (fs *FilmsService) Delete(ctx context.Context, request api.DeleteRequest) error {
+	err := fs.Repositories.CacheRepo.Delete(ctx, request)
+	if err != nil {
+		return err
+	}
+	err = fs.Repositories.MainRepo.Delete(ctx, request)
+	if err != nil {
+		return err
+	}
+	return nil
 }

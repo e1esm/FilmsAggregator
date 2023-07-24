@@ -3,11 +3,13 @@ package postgres
 import (
 	"context"
 	"errors"
+	"github.com/e1esm/FilmsAggregator/internal/models/api"
 	"github.com/e1esm/FilmsAggregator/internal/models/db"
 	"github.com/e1esm/FilmsAggregator/internal/models/general"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
 	uuidHash "github.com/google/uuid"
 	"go.uber.org/zap"
+	"time"
 )
 
 var (
@@ -15,6 +17,8 @@ var (
 )
 
 func (fr *FilmsRepository) Add(ctx context.Context, film db.Film) (db.Film, error) {
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
 	tx, err := fr.Pool.Begin(ctx)
 	if err != nil {
 		logger.Logger.Error("Couldn't have begun transaction", zap.String("err", err.Error()))
@@ -135,6 +139,23 @@ func (fr *FilmsRepository) addCrew(ctx context.Context, film *db.Film) error {
 		if err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func (fr *FilmsRepository) Delete(ctx context.Context, requestedFilm api.DeleteRequest) error {
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
+	tx, err := fr.Pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec(ctx, "DELETE FROM film WHERE title = $1 AND genre = $2 AND release_year = $3;",
+		requestedFilm.Title,
+		requestedFilm.Genre,
+		requestedFilm.ReleasedYear)
+	if err != nil {
+		return err
 	}
 	return nil
 }
