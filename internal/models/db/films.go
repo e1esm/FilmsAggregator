@@ -21,10 +21,16 @@ type Film struct {
 	HashCode     string       `reindex:"hash"`
 }
 
-func NewFilm(id uuid.UUID, title string, crew general.Crew, releasedYear int, revenue float64) *Film {
-	film := &Film{ID: id, Title: title, Crew: crew, ReleasedYear: releasedYear, Revenue: revenue}
+type Generator func() uuid.UUID
+
+func NewFilm(title string, crew general.Crew, releasedYear int, revenue float64, gen Generator) *Film {
+	film := &Film{ID: gen(), Title: title, Crew: crew, ReleasedYear: releasedYear, Revenue: revenue}
 	encode(film)
 	return film
+}
+
+func GenerateUUID() uuid.UUID {
+	return uuid.New()
 }
 
 func encode(film *Film) {

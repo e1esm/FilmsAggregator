@@ -6,7 +6,6 @@ import (
 )
 
 func GenerateUUIDs(film *db.Film) {
-	film.ID = uuid.New()
 	for i := 0; i < len(film.Crew.Producers); i++ {
 		film.Crew.Producers[i].ID = uuid.New()
 	}

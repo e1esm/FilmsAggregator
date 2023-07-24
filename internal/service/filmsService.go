@@ -22,8 +22,10 @@ var (
 	AlreadyExistsError = errors.New("film already exists")
 )
 
+//go:generate mockgen -source=filmsService.go -destination=mocks/mock.go
+
 type Service interface {
-	Add(context.Context, *db.Film) (api.Film, error)
+	Add(context.Context, db.Film) (api.Film, error)
 	Get(ctx context.Context, name string) ([]*api.Film, error)
 }
 
@@ -41,17 +43,17 @@ func NewService(repositories *repository.Repositories, config *config.Config) *F
 	return &FilmsService{Repositories: repositories, ExpirationTime: expirationTime}
 }
 
-func (fs *FilmsService) Add(ctx context.Context, film *db.Film) (api.Film, error) {
+func (fs *FilmsService) Add(ctx context.Context, film db.Film) (api.Film, error) {
 	film.CacheTime = time.Now()
-	doesExist := fs.Repositories.MainRepo.Verify(ctx, film)
+	doesExist := fs.Repositories.MainRepo.Verify(ctx, &film)
 	if doesExist {
 		return api.Film{}, AlreadyExistsError
 	}
-	_, err := fs.Repositories.CacheRepo.Add(ctx, film)
+	_, err := fs.Repositories.CacheRepo.Add(ctx, &film)
 	if err != nil {
 		logger.Logger.Error(err.Error(), zap.String("film", film.Title))
 	}
-	inserted, err := fs.Repositories.MainRepo.Add(ctx, film)
+	inserted, err := fs.Repositories.MainRepo.Add(ctx, &film)
 	if err != nil {
 		return api.Film{}, err
 	}

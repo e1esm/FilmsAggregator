@@ -10,7 +10,6 @@ import (
 	"go.uber.org/zap"
 	"io"
 	"net/http"
-	"time"
 )
 
 func (s *AggregatorServer) AddFilm(w http.ResponseWriter, r *http.Request) {
@@ -31,11 +30,9 @@ func (s *AggregatorServer) AddFilm(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	dtoFilm := db.NewFilm(receivedFilm.ID, receivedFilm.Title, receivedFilm.Crew, receivedFilm.ReleasedYear, receivedFilm.Revenue)
-	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
-	defer cancel()
+	dtoFilm := db.NewFilm(receivedFilm.Title, receivedFilm.Crew, receivedFilm.ReleasedYear, receivedFilm.Revenue, db.GenerateUUID)
 
-	insertedFilm, err := s.FilmsService.Add(ctx, dtoFilm)
+	insertedFilm, err := s.FilmsService.Add(context.Background(), *dtoFilm)
 	switch {
 	case err == service.AlreadyExistsError:
 		logger.Logger.Error(err.Error())
@@ -68,9 +65,8 @@ func (s *AggregatorServer) GetFilms(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
-	defer cancel()
-	films, err := s.FilmsService.Get(ctx, name)
+
+	films, err := s.FilmsService.Get(context.Background(), name)
 	if err != nil {
 		logger.Logger.Error(err.Error(), zap.String("req", name))
 		w.WriteHeader(http.StatusNotFound)
