@@ -13,6 +13,18 @@ import (
 	"strconv"
 )
 
+// AddFilm godoc
+// @Summary Add film to the DB
+// @Description Based on the body of POST request add film to the DB
+// @Tags film
+// @Accept json
+// @Produce json
+// @Param film body api.Film true "film model"
+// @Success 200 {object} api.Film
+// @Failure 400
+// @Failure 405
+// @Failure 500
+// @Router /api/add/ [post]
 func (s *AggregatorServer) AddFilm(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodPost {
@@ -111,6 +123,16 @@ func (s *AggregatorServer) DeleteFilm(w http.ResponseWriter, r *http.Request) {
 	w.Write(content)
 }
 
+// GetAllFilms godoc
+// @Summary Get all the films from the DB
+// @Description Get every available film from the DB
+// @Tags films
+// @Produce json
+// @Success 200 {object} []api.Film
+// @Failure 404
+// @Failure 405
+// @Failure 500
+// @Router /api/all/ [get]
 func (s *AggregatorServer) GetAllFilms(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)

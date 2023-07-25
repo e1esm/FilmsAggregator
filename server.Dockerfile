@@ -6,7 +6,7 @@ COPY . ./
 RUN go build -o /aggregator ./cmd/aggregator/main.go
 
 
-FROM scratch
+FROM alpine
 
 WORKDIR /
 

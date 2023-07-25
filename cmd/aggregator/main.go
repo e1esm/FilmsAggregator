@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	_ "github.com/e1esm/FilmsAggregator/docs"
 	"github.com/e1esm/FilmsAggregator/internal/repository"
 	"github.com/e1esm/FilmsAggregator/internal/repository/postgres"
 	"github.com/e1esm/FilmsAggregator/internal/repository/reindexer"
@@ -9,10 +10,17 @@ import (
 	"github.com/e1esm/FilmsAggregator/internal/service"
 	"github.com/e1esm/FilmsAggregator/utils/config"
 	"github.com/e1esm/FilmsAggregator/utils/uuid"
+	_ "github.com/swaggo/files"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 	"log"
 	"net/http"
 )
 
+// @title Films Aggregator
+// @version 1.0
+// @description API Server for Films Aggregator application
+// @host localhost:8080
+// @BasePath /
 func main() {
 	cfg := config.NewConfig()
 	currServer := configureServer(configureService(cfg, &uuid.UUIDGenerator{}))
@@ -29,6 +37,7 @@ func configureServer(service service.Service) *server.AggregatorServer {
 		WithEndpoint("/api/get/", sb.Server.GetFilms).
 		WithEndpoint("/api/delete/", sb.Server.DeleteFilm).
 		WithEndpoint("/api/all/", sb.Server.GetAllFilms).
+		WithEndpoint("/swagger/", httpSwagger.WrapHandler).
 		WithService(service).
 		WithIDGenerator(&uuid.UUIDGenerator{}).
 		Build()

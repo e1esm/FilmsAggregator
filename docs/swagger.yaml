@@ -1,0 +1,103 @@
+basePath: /
+definitions:
+  api.Film:
+    properties:
+      crew:
+        $ref: '#/definitions/general.Crew'
+      genre:
+        type: string
+      released_year:
+        type: integer
+      revenue:
+        type: number
+      title:
+        type: string
+    type: object
+  general.Actor:
+    properties:
+      birthdate:
+        type: string
+      gender:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+    type: object
+  general.Crew:
+    properties:
+      actors:
+        items:
+          $ref: '#/definitions/general.Actor'
+        type: array
+      producers:
+        items:
+          $ref: '#/definitions/general.Producer'
+        type: array
+    type: object
+  general.Producer:
+    properties:
+      birthdate:
+        type: string
+      gender:
+        type: string
+      name:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API Server for Films Aggregator application
+  title: Films Aggregator
+  version: "1.0"
+paths:
+  /api/add/:
+    post:
+      consumes:
+      - application/json
+      description: Based on the body of POST request add film to the DB
+      parameters:
+      - description: film model
+        in: body
+        name: film
+        required: true
+        schema:
+          $ref: '#/definitions/api.Film'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Film'
+        "400":
+          description: Bad Request
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Server Error
+      summary: Add film to the DB
+      tags:
+      - film
+  /api/all/:
+    get:
+      description: Get every available film from the DB
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/api.Film'
+            type: array
+        "404":
+          description: Not Found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Server Error
+      summary: Get all the films from the DB
+      tags:
+      - films
+swagger: "2.0"
