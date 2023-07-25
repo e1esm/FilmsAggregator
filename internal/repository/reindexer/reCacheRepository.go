@@ -85,6 +85,7 @@ func (cr *CacheRepository) Delete(ctx context.Context, request api.DeleteRequest
 	cr.db.WithContext(ctx)
 	_, err := cr.db.ExecSQL(query).FetchOne()
 	if err != nil {
+		logger.Logger.Error(err.Error(), zap.String("request", fmt.Sprintf("%v", request)))
 		return err
 	}
 	return nil

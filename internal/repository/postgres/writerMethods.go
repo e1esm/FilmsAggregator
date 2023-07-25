@@ -144,17 +144,15 @@ func (fr *FilmsRepository) addCrew(ctx context.Context, film *db.Film) error {
 }
 
 func (fr *FilmsRepository) Delete(ctx context.Context, requestedFilm api.DeleteRequest) error {
-	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
-	tx, err := fr.Pool.Begin(ctx)
-	if err != nil {
-		return err
-	}
-	_, err = tx.Exec(ctx, "DELETE FROM film WHERE title = $1 AND genre = $2 AND release_year = $3;",
+
+	_, err := fr.Pool.Exec(ctx, "DELETE FROM film WHERE title = $1 AND genre = $2 AND release_year = $3",
 		requestedFilm.Title,
 		requestedFilm.Genre,
 		requestedFilm.ReleasedYear)
 	if err != nil {
+		logger.Logger.Error(err.Error())
 		return err
 	}
 	return nil

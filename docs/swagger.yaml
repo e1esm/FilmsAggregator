@@ -1,5 +1,14 @@
 basePath: /
 definitions:
+  api.DeleteRequest:
+    properties:
+      genre:
+        type: string
+      released_year:
+        type: integer
+      title:
+        type: string
+    type: object
   api.Film:
     properties:
       crew:
@@ -100,4 +109,40 @@ paths:
       summary: Get all the films from the DB
       tags:
       - films
+  /api/delete/:
+    delete:
+      description: Delete film from both cache and main repositories based on the
+        user's provided filters
+      parameters:
+      - description: Film title
+        in: query
+        name: title
+        required: true
+        type: string
+      - description: Film genre
+        in: query
+        name: genre
+        required: true
+        type: string
+      - description: Film release date
+        in: query
+        name: released_year
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.DeleteRequest'
+        "400":
+          description: Bad Request
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Server Error
+      summary: Delete film
+      tags:
+      - film
 swagger: "2.0"

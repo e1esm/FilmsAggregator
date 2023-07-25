@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/e1esm/FilmsAggregator/internal/models/api"
 	"github.com/e1esm/FilmsAggregator/internal/models/db"
 	"github.com/e1esm/FilmsAggregator/internal/service"
@@ -95,6 +96,19 @@ func (s *AggregatorServer) GetFilms(w http.ResponseWriter, r *http.Request) {
 	w.Write(bytes)
 }
 
+// DeleteFilm godoc
+// @Summary Delete film
+// @Description Delete film from both cache and main repositories based on the user's provided filters
+// @Tags film
+// @Param title query string true "Film title"
+// @Param genre query string true "Film genre"
+// @Param released_year query string true "Film release date"
+// @Produce json
+// @Success 200 {object} api.DeleteRequest
+// @Failure 400
+// @Failure 405
+// @Failure 500
+// @Router /api/delete/ [delete]
 func (s *AggregatorServer) DeleteFilm(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -112,8 +126,9 @@ func (s *AggregatorServer) DeleteFilm(w http.ResponseWriter, r *http.Request) {
 
 	deleteRequest := api.DeleteRequest{Title: title, Genre: genre, ReleasedYear: releasedYear}
 
-	err = s.FilmsService.Delete(r.Context(), deleteRequest)
+	err = s.FilmsService.Delete(context.Background(), deleteRequest)
 	if err != nil {
+		logger.Logger.Error(fmt.Sprintf("%v", deleteRequest))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
