@@ -3,12 +3,14 @@ package postgres
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/e1esm/FilmsAggregator/internal/models/api"
 	"github.com/e1esm/FilmsAggregator/internal/models/db"
 	"github.com/e1esm/FilmsAggregator/internal/models/general"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
 	uuidHash "github.com/google/uuid"
 	"go.uber.org/zap"
+	"sync"
 	"time"
 )
 
@@ -147,7 +149,12 @@ func (fr *FilmsRepository) Delete(ctx context.Context, requestedFilm api.DeleteR
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	_, err := fr.Pool.Exec(ctx, "DELETE FROM film WHERE title = $1 AND genre = $2 AND release_year = $3",
+	films, err := fr.FindByName(ctx, requestedFilm.Title)
+	if err != nil {
+		return err
+	}
+
+	_, err = fr.Pool.Exec(ctx, "DELETE FROM film WHERE title = $1 AND genre = $2 AND release_year = $3",
 		requestedFilm.Title,
 		requestedFilm.Genre,
 		requestedFilm.ReleasedYear)
@@ -155,5 +162,38 @@ func (fr *FilmsRepository) Delete(ctx context.Context, requestedFilm api.DeleteR
 		logger.Logger.Error(err.Error())
 		return err
 	}
+
+	var actorErr error
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		for _, film := range films {
+			for _, actor := range film.Crew.Actors {
+				_, err = fr.Pool.Exec(ctx, "DELETE FROM actor WHERE id = $1", actor.ID)
+				if err != nil {
+					actorErr = err
+				}
+			}
+		}
+	}()
+	var prodErr error
+	go func() {
+		defer wg.Done()
+		for _, film := range films {
+			for _, producer := range film.Crew.Producers {
+				_, err = fr.Pool.Exec(ctx, "DELETE FROM producer WHERE id = $1", producer.ID)
+				if err != nil {
+					prodErr = err
+
+				}
+			}
+		}
+	}()
+	wg.Wait()
+	if actorErr != nil || prodErr != nil {
+		return fmt.Errorf("actorErr: %v prodErr: %v", actorErr, prodErr)
+	}
+
 	return nil
 }

@@ -56,8 +56,6 @@ func (fs *FilmsService) Add(ctx context.Context, film db.Film) (api.Film, error)
 	if err != nil {
 		logger.Logger.Error(err.Error(), zap.String("film", film.Title))
 	}
-	logger.Logger.Info(fmt.Sprintf("%v", film.Crew.Producers[0].ID))
-	logger.Logger.Info(fmt.Sprintf("%v", film.Crew.Actors[0].ID))
 	inserted, err := fs.Repositories.MainRepo.Add(ctx, film)
 	if err != nil {
 		return api.Film{}, err
