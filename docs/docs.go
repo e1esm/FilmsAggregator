@@ -79,8 +79,8 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "404": {
-                        "description": "Not Found"
+                    "400": {
+                        "description": "Bad Request"
                     },
                     "405": {
                         "description": "Method Not Allowed"
@@ -142,44 +142,100 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/get/": {
+            "get": {
+                "description": "Get all films with the specified name.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "films"
+                ],
+                "summary": "Get films with the specified name (there can be more than 1 film with the same name)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "film title",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.Film"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
         }
     },
     "definitions": {
         "api.DeleteRequest": {
+            "description": "request, according to which a film is going to be deleted from the database. It has 3 filters: Genre, Title and ReleasedYear",
             "type": "object",
             "properties": {
                 "genre": {
+                    "description": "A genre of the show to be deleted",
                     "type": "string"
                 },
                 "released_year": {
+                    "description": "A year of release of a show to be deleted",
                     "type": "integer"
                 },
                 "title": {
+                    "description": "A title of the show to be deleted",
                     "type": "string"
                 }
             }
         },
         "api.Film": {
+            "description": "model's being operated on",
             "type": "object",
             "properties": {
                 "crew": {
-                    "$ref": "#/definitions/general.Crew"
+                    "description": "Crew that took a part in production",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/general.Crew"
+                        }
+                    ]
                 },
                 "genre": {
+                    "description": "A genre of the show",
                     "type": "string"
                 },
                 "released_year": {
+                    "description": "Year the show was released in",
                     "type": "integer"
                 },
                 "revenue": {
+                    "description": "Revenue which was received by the show",
                     "type": "number"
                 },
                 "title": {
+                    "description": "Title of the show",
                     "type": "string"
                 }
             }
         },
         "general.Actor": {
+            "description": "Actor that took a part in the show",
             "type": "object",
             "properties": {
                 "birthdate": {
@@ -192,20 +248,24 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "role": {
+                    "description": "Actor's role in the show",
                     "type": "string"
                 }
             }
         },
         "general.Crew": {
+            "description": "The model of the crew which took part in shooting the show",
             "type": "object",
             "properties": {
                 "actors": {
+                    "description": "All actors took a part in the show",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/general.Actor"
                     }
                 },
                 "producers": {
+                    "description": "All producers that took a part in the show",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/general.Producer"
@@ -214,6 +274,7 @@ const docTemplate = `{
             }
         },
         "general.Producer": {
+            "description": "producer of the show",
             "type": "object",
             "properties": {
                 "birthdate": {

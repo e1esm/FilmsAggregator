@@ -68,6 +68,17 @@ func (s *AggregatorServer) AddFilm(w http.ResponseWriter, r *http.Request) {
 	w.Write(bytes)
 }
 
+// GetFilms godoc
+// @Summary Get films with the specified name (there can be more than 1 film with the same name)
+// @Description Get all films with the specified name.
+// @Param name query string true "film title"
+// @Tags films
+// @Produce json
+// @Success 200 {array} api.Film
+// @Failure 400
+// @Failure 405
+// @Failure 500
+// @Router /api/get/ [get]
 func (s *AggregatorServer) GetFilms(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -143,8 +154,8 @@ func (s *AggregatorServer) DeleteFilm(w http.ResponseWriter, r *http.Request) {
 // @Description Get every available film from the DB
 // @Tags films
 // @Produce json
-// @Success 200 {object} []api.Film
-// @Failure 404
+// @Success 200 {array} api.Film
+// @Failure 400
 // @Failure 405
 // @Failure 500
 // @Router /api/all/ [get]

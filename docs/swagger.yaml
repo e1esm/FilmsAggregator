@@ -1,28 +1,41 @@
 basePath: /
 definitions:
   api.DeleteRequest:
+    description: 'request, according to which a film is going to be deleted from the
+      database. It has 3 filters: Genre, Title and ReleasedYear'
     properties:
       genre:
+        description: A genre of the show to be deleted
         type: string
       released_year:
+        description: A year of release of a show to be deleted
         type: integer
       title:
+        description: A title of the show to be deleted
         type: string
     type: object
   api.Film:
+    description: model's being operated on
     properties:
       crew:
-        $ref: '#/definitions/general.Crew'
+        allOf:
+        - $ref: '#/definitions/general.Crew'
+        description: Crew that took a part in production
       genre:
+        description: A genre of the show
         type: string
       released_year:
+        description: Year the show was released in
         type: integer
       revenue:
+        description: Revenue which was received by the show
         type: number
       title:
+        description: Title of the show
         type: string
     type: object
   general.Actor:
+    description: Actor that took a part in the show
     properties:
       birthdate:
         type: string
@@ -31,20 +44,25 @@ definitions:
       name:
         type: string
       role:
+        description: Actor's role in the show
         type: string
     type: object
   general.Crew:
+    description: The model of the crew which took part in shooting the show
     properties:
       actors:
+        description: All actors took a part in the show
         items:
           $ref: '#/definitions/general.Actor'
         type: array
       producers:
+        description: All producers that took a part in the show
         items:
           $ref: '#/definitions/general.Producer'
         type: array
     type: object
   general.Producer:
+    description: producer of the show
     properties:
       birthdate:
         type: string
@@ -100,8 +118,8 @@ paths:
             items:
               $ref: '#/definitions/api.Film'
             type: array
-        "404":
-          description: Not Found
+        "400":
+          description: Bad Request
         "405":
           description: Method Not Allowed
         "500":
@@ -145,4 +163,32 @@ paths:
       summary: Delete film
       tags:
       - film
+  /api/get/:
+    get:
+      description: Get all films with the specified name.
+      parameters:
+      - description: film title
+        in: query
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/api.Film'
+            type: array
+        "400":
+          description: Bad Request
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Server Error
+      summary: Get films with the specified name (there can be more than 1 film with
+        the same name)
+      tags:
+      - films
 swagger: "2.0"
