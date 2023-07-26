@@ -31,6 +31,14 @@ type Config struct {
 		Password      string `yaml:"password"`
 		Connections   int    `yaml:"connections"`
 	} `yaml:"postgres"`
+	AuthDB struct {
+		ContainerName string `yaml:"container_name"`
+		Port          int    `yaml:"port"`
+		User          string `yaml:"user"`
+		DatabaseName  string `yaml:"database_name"`
+		Password      string `yaml:"password"`
+		Connections   int    `yaml:"connections"`
+	} `yaml:"auth_db"`
 }
 
 func NewConfig() *Config {

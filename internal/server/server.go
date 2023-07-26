@@ -10,6 +10,7 @@ type AggregatorServer struct {
 	Router       *http.ServeMux
 	FilmsService service.Service
 	IDGenerator  uuid.Generator
+	AuthService  service.AuthorizationService
 }
 
 type Builder struct {
@@ -36,8 +37,13 @@ func (b *Builder) WithRouter(mux *http.ServeMux) *Builder {
 	return b
 }
 
-func (b *Builder) WithService(service service.Service) *Builder {
+func (b *Builder) WithFilmsService(service service.Service) *Builder {
 	b.Server.FilmsService = service
+	return b
+}
+
+func (b *Builder) WithAuthenticationService(service service.AuthorizationService) *Builder {
+	b.Server.AuthService = service
 	return b
 }
 

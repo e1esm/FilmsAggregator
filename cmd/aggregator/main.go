@@ -4,6 +4,7 @@ import (
 	"fmt"
 	_ "github.com/e1esm/FilmsAggregator/docs"
 	"github.com/e1esm/FilmsAggregator/internal/repository"
+	"github.com/e1esm/FilmsAggregator/internal/repository/authentication"
 	"github.com/e1esm/FilmsAggregator/internal/repository/postgres"
 	"github.com/e1esm/FilmsAggregator/internal/repository/reindexer"
 	"github.com/e1esm/FilmsAggregator/internal/server"
@@ -23,14 +24,14 @@ import (
 // @BasePath /
 func main() {
 	cfg := config.NewConfig()
-	currServer := configureServer(configureService(cfg, &uuid.UUIDGenerator{}))
+	currServer := configureServer(configureService(cfg, &uuid.UUIDGenerator{}), service.NewAuthService(authentication.NewAuthRepository(*cfg)))
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d",
 		cfg.Aggregator.Address,
 		cfg.Aggregator.Port),
 		currServer.Router))
 }
 
-func configureServer(service service.Service) *server.AggregatorServer {
+func configureServer(service service.Service, authService service.AuthorizationService) *server.AggregatorServer {
 	sb := server.NewBuilder()
 	aggServ := sb.WithRouter(http.NewServeMux()).
 		WithEndpoint("/api/add/", sb.Server.AddFilm).
@@ -40,7 +41,8 @@ func configureServer(service service.Service) *server.AggregatorServer {
 		WithEndpoint("/api/actor/films/", sb.Server.FindFilmsByActor).
 		WithEndpoint("/api/producer/films/", sb.Server.FindFilmsByProducer).
 		WithEndpoint("/swagger/", httpSwagger.WrapHandler).
-		WithService(service).
+		WithFilmsService(service).
+		WithAuthenticationService(authService).
 		WithIDGenerator(&uuid.UUIDGenerator{}).
 		Build()
 	return aggServ

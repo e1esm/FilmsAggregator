@@ -14,4 +14,10 @@ postgres:
   database_name: films_aggregator
   password: postgres
   connections: 100
-
+auth_db:
+  container_name: postgres
+  port: 5431
+  user: postgres
+  database_name: users
+  password: postgres
+  connections: 100
