@@ -37,6 +37,8 @@ func configureServer(service service.Service) *server.AggregatorServer {
 		WithEndpoint("/api/get/", sb.Server.GetFilms).
 		WithEndpoint("/api/delete/", sb.Server.DeleteFilm).
 		WithEndpoint("/api/all/", sb.Server.GetAllFilms).
+		WithEndpoint("/api/actor/films/", sb.Server.FindFilmsByActor).
+		WithEndpoint("/api/producer/films/", sb.Server.FindFilmsByProducer).
 		WithEndpoint("/swagger/", httpSwagger.WrapHandler).
 		WithService(service).
 		WithIDGenerator(&uuid.UUIDGenerator{}).

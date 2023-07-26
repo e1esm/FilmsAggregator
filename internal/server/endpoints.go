@@ -8,6 +8,7 @@ import (
 	"github.com/e1esm/FilmsAggregator/internal/models/db"
 	"github.com/e1esm/FilmsAggregator/internal/service"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
+	"github.com/jackc/pgx/v5"
 	"go.uber.org/zap"
 	"io"
 	"net/http"
@@ -44,6 +45,9 @@ func (s *AggregatorServer) AddFilm(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	w.Header().Set("Content-Type", "application/json")
+
 	dtoFilm := db.NewFilm(s.IDGenerator.Generate(), receivedFilm.Title, receivedFilm.Crew, receivedFilm.ReleasedYear, receivedFilm.Revenue, receivedFilm.Genre)
 	dtoFilm = s.IDGenerator.GenerateUUIDs(*dtoFilm)
 	insertedFilm, err := s.FilmsService.Add(context.Background(), *dtoFilm)
@@ -63,7 +67,6 @@ func (s *AggregatorServer) AddFilm(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(bytes)
 }
@@ -76,6 +79,7 @@ func (s *AggregatorServer) AddFilm(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Success 200 {array} api.Film
 // @Failure 400
+// @Failure 404
 // @Failure 405
 // @Failure 500
 // @Router /api/get/ [get]
@@ -155,7 +159,7 @@ func (s *AggregatorServer) DeleteFilm(w http.ResponseWriter, r *http.Request) {
 // @Tags films
 // @Produce json
 // @Success 200 {array} api.Film
-// @Failure 400
+// @Failure 404
 // @Failure 405
 // @Failure 500
 // @Router /api/all/ [get]
@@ -182,6 +186,92 @@ func (s *AggregatorServer) GetAllFilms(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(content)
+}
+
+// FindFilmsByActor godoc
+// @Summary Films actor took a part in
+// @Description Get all the films which a certain actor was shot in
+// @Param actor query string true "Actor filter"
+// @Tags actor
+// @Produce json
+// @Success 200 {array} api.Film
+// @Failure 400
+// @Failure 404
+// @Failure 405
+// @Failure 500
+// @Router /api/actor/films/ [get]
+func (s *AggregatorServer) FindFilmsByActor(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	actorName := r.URL.Query().Get("actor")
+	if actorName == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	films, err := s.FilmsService.GetByActor(r.Context(), actorName)
+	if err != nil {
+		switch {
+		case err == pgx.ErrNoRows:
+			w.WriteHeader(http.StatusNotFound)
+		case err != nil:
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+		return
+	}
+
+	content, err := json.Marshal(films)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(content)
+}
+
+// FindFilmsByProducer godoc
+// @Summary Films, which were produced by the specified person
+// @Description Get all the films that'd been produced by a specified producer.
+// @Param producer query string true "Producer filter"
+// @Tags producer
+// @Produce json
+// @Success 200 {array} api.Film
+// @Failure 400
+// @Failure 404
+// @Failure 405
+// @Failure 500
+// @Router /api/producer/films/ [get]
+func (s *AggregatorServer) FindFilmsByProducer(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	producerName := r.URL.Query().Get("producer")
+	if producerName == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	films, err := s.FilmsService.GetByProducer(r.Context(), producerName)
+	if err != nil {
+		switch {
+		case err == pgx.ErrNoRows:
+			w.WriteHeader(http.StatusNotFound)
+		case err != nil:
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+		return
+	}
+
+	content, err := json.Marshal(films)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(content)

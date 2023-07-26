@@ -16,6 +16,50 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/actor/films/": {
+            "get": {
+                "description": "Get all the films which a certain actor was shot in",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "actor"
+                ],
+                "summary": "Films actor took a part in",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Actor filter",
+                        "name": "actor",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.Film"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
         "/api/add/": {
             "post": {
                 "description": "Based on the body of POST request add film to the DB",
@@ -79,8 +123,8 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "400": {
-                        "description": "Bad Request"
+                    "404": {
+                        "description": "Not Found"
                     },
                     "405": {
                         "description": "Method Not Allowed"
@@ -174,6 +218,53 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/api/producer/films/": {
+            "get": {
+                "description": "Get all the films that'd been produced by a specified producer.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "producer"
+                ],
+                "summary": "Films, which were produced by the specified person",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Producer filter",
+                        "name": "producer",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.Film"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
                     },
                     "405": {
                         "description": "Method Not Allowed"

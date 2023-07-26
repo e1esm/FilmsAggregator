@@ -30,6 +30,8 @@ type Service interface {
 	Get(ctx context.Context, name string) ([]*api.Film, error)
 	Delete(ctx context.Context, requestedFilm api.DeleteRequest) error
 	GetAll(ctx context.Context) ([]api.Film, error)
+	GetByActor(ctx context.Context, name string) ([]api.Film, error)
+	GetByProducer(ctx context.Context, name string) ([]api.Film, error)
 }
 
 type FilmsService struct {
@@ -131,4 +133,28 @@ func (fs *FilmsService) GetAll(ctx context.Context) ([]api.Film, error) {
 		return filmsAPI, err
 	}
 	return filmsAPI, nil
+}
+
+func (fs *FilmsService) GetByActor(ctx context.Context, name string) ([]api.Film, error) {
+	films, err := fs.Repositories.MainRepo.FindFilmsByActor(ctx, name)
+	if err != nil {
+		return nil, err
+	}
+	apiFilms := make([]api.Film, len(films))
+	for i := 0; i < len(films); i++ {
+		apiFilms[i] = *api.NewFilm(films[i])
+	}
+	return apiFilms, nil
+}
+
+func (fs *FilmsService) GetByProducer(ctx context.Context, name string) ([]api.Film, error) {
+	films, err := fs.Repositories.MainRepo.FindFilmsByProducer(ctx, name)
+	if err != nil {
+		return nil, err
+	}
+	apiFilms := make([]api.Film, len(films))
+	for i := 0; i < len(films); i++ {
+		apiFilms[i] = *api.NewFilm(films[i])
+	}
+	return apiFilms, nil
 }

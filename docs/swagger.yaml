@@ -78,6 +78,35 @@ info:
   title: Films Aggregator
   version: "1.0"
 paths:
+  /api/actor/films/:
+    get:
+      description: Get all the films which a certain actor was shot in
+      parameters:
+      - description: Actor filter
+        in: query
+        name: actor
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/api.Film'
+            type: array
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Server Error
+      summary: Films actor took a part in
+      tags:
+      - actor
   /api/add/:
     post:
       consumes:
@@ -118,8 +147,8 @@ paths:
             items:
               $ref: '#/definitions/api.Film'
             type: array
-        "400":
-          description: Bad Request
+        "404":
+          description: Not Found
         "405":
           description: Method Not Allowed
         "500":
@@ -183,6 +212,8 @@ paths:
             type: array
         "400":
           description: Bad Request
+        "404":
+          description: Not Found
         "405":
           description: Method Not Allowed
         "500":
@@ -191,4 +222,33 @@ paths:
         the same name)
       tags:
       - films
+  /api/producer/films/:
+    get:
+      description: Get all the films that'd been produced by a specified producer.
+      parameters:
+      - description: Producer filter
+        in: query
+        name: producer
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/api.Film'
+            type: array
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Server Error
+      summary: Films, which were produced by the specified person
+      tags:
+      - producer
 swagger: "2.0"

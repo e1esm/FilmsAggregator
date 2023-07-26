@@ -169,3 +169,69 @@ func (fr *FilmsRepository) FindAll(ctx context.Context) ([]db.Film, error) {
 	}
 	return dbFilms, nil
 }
+
+func (fr *FilmsRepository) FindFilmsByActor(ctx context.Context, name string) ([]db.Film, error) {
+	films := make([]db.Film, 0)
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	query :=
+		`SELECT f.*
+		FROM film f
+	JOIN crew c ON f.id = c.film_id
+	JOIN actor a ON c.actor_id = a.id
+	WHERE a.name = $1;
+`
+	rows, err := fr.Pool.Query(ctx, query, name)
+	if err != nil {
+		return nil, queryError
+	}
+
+	i := -1
+	for rows.Next() {
+		receivedFilm := db.Film{}
+		if err = rows.Scan(&receivedFilm.ID, &receivedFilm.Title, &receivedFilm.Genre, &receivedFilm.ReleasedYear, &receivedFilm.Revenue, &receivedFilm.HashCode); err != nil {
+			logger.Logger.Error(err.Error())
+			return nil, scanningError
+		}
+		films = append(films, receivedFilm)
+		i++
+	}
+
+	if i == -1 {
+		return nil, pgx.ErrNoRows
+	}
+	return films, nil
+}
+
+func (fr *FilmsRepository) FindFilmsByProducer(ctx context.Context, name string) ([]db.Film, error) {
+	films := make([]db.Film, 0)
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	query :=
+		`SELECT f.*
+		FROM film f
+	JOIN crew c ON f.id = c.film_id
+	JOIN producer p ON c.producer_id = p.id
+	WHERE p.name = $1;
+`
+	rows, err := fr.Pool.Query(ctx, query, name)
+	if err != nil {
+		return nil, queryError
+	}
+
+	i := -1
+	for rows.Next() {
+		receivedFilm := db.Film{}
+		if err = rows.Scan(&receivedFilm.ID, &receivedFilm.Title, &receivedFilm.Genre, &receivedFilm.ReleasedYear, &receivedFilm.Revenue, &receivedFilm.HashCode); err != nil {
+			logger.Logger.Error(err.Error())
+			return nil, scanningError
+		}
+		films = append(films, receivedFilm)
+		i++
+	}
+
+	if i == -1 {
+		return nil, pgx.ErrNoRows
+	}
+	return films, nil
+}

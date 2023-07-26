@@ -10,8 +10,14 @@ type ScrapperRepository interface {
 	FindAll(context.Context) ([]db.Film, error)
 }
 
+type CrewRepository interface {
+	FindFilmsByActor(context.Context, string) ([]db.Film, error)
+	FindFilmsByProducer(context.Context, string) ([]db.Film, error)
+}
+
 type CompleteRepository interface {
 	ScrapperRepository
+	CrewRepository
 	MainRepository
 }
 
