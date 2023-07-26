@@ -40,10 +40,17 @@ func (fr *FilmsRepository) FindByName(ctx context.Context, name string) ([]*db.F
 	foundFilms := make([]*db.Film, 0)
 	query := "select * from film where title = $1;"
 	rows, err := fr.Pool.Query(ctx, query, name)
-	if err != nil {
+	switch {
+	case err == sql.ErrNoRows:
+		return nil, sql.ErrNoRows
+	case err != nil:
 		return nil, queryError
+	default:
+
 	}
+
 	i := -1
+
 	for rows.Next() {
 		i++
 		foundFilms = append(foundFilms, &db.Film{})
@@ -54,6 +61,10 @@ func (fr *FilmsRepository) FindByName(ctx context.Context, name string) ([]*db.F
 		foundFilms[i].Crew = &general.Crew{}
 		foundFilms[i].Crew.Actors = make([]*general.Actor, 0)
 		foundFilms[i].Crew.Producers = make([]*general.Producer, 0)
+	}
+
+	if i == -1 {
+		return nil, sql.ErrNoRows
 	}
 
 	films, err := fr.findCrew(ctx, foundFilms)
