@@ -232,7 +232,7 @@ func TestAggregatorServer_FindFilmsByActor(t *testing.T) {
 			name:               "",
 			expectedStatusCode: 400,
 			mockBehaviour: func(s *mock_service.MockService, name string) {
-				s.EXPECT().GetByActor(context.Background(), name).Return(nil, nil).AnyTimes()
+				s.EXPECT().GetByActor(context.Background(), name).Return(nil, nil).Times(0)
 			},
 		}, {
 			title: "Not found",
@@ -250,13 +250,13 @@ func TestAggregatorServer_FindFilmsByActor(t *testing.T) {
 	generator := &mocks.MockIDGenerator{}
 	server := AggregatorServer{FilmsService: filmService, IDGenerator: generator}
 	server.Router = http.NewServeMux()
-	server.Router.HandleFunc("/api/actor/films", server.FindFilmsByActor)
+	server.Router.HandleFunc("/api/actor/films/", server.FindFilmsByActor)
 
 	for _, test := range testTable {
 		t.Run(test.title, func(t *testing.T) {
 			test.mockBehaviour(filmService, test.name)
 			w := httptest.NewRecorder()
-			urlPath := fmt.Sprintf("http://localhost:8080/api/actor/films?actor=%s",
+			urlPath := fmt.Sprintf("http://localhost:8080/api/actor/films/?actor=%s",
 				test.name)
 			req := httptest.NewRequest("GET", urlPath, nil)
 			server.Router.ServeHTTP(w, req)
@@ -265,4 +265,58 @@ func TestAggregatorServer_FindFilmsByActor(t *testing.T) {
 		})
 	}
 
+}
+
+func TestAggregatorServer_FindFilmsByProducer(t *testing.T) {
+	type mockBehaviour func(s *mock_service.MockService, name string)
+	testTable := []struct {
+		title              string
+		name               string
+		expectedStatusCode int
+		mockBehaviour      mockBehaviour
+	}{
+		{
+			title:              "Found",
+			name:               "Paul",
+			expectedStatusCode: 200,
+			mockBehaviour: func(s *mock_service.MockService, name string) {
+				s.EXPECT().GetByProducer(context.Background(), name).Return([]api.Film{}, nil)
+			},
+		}, {
+			title:              "Bad Request",
+			name:               "",
+			expectedStatusCode: 400,
+			mockBehaviour: func(s *mock_service.MockService, name string) {
+				s.EXPECT().GetByProducer(context.Background(), name).Return(nil, nil).Times(0)
+			},
+		}, {
+			title: "Not found",
+			name:  "Nigel",
+			mockBehaviour: func(s *mock_service.MockService, name string) {
+				s.EXPECT().GetByProducer(context.Background(), name).Return(nil, pgx.ErrNoRows)
+			},
+			expectedStatusCode: 404,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	filmService := mock_service.NewMockService(ctrl)
+	generator := &mocks.MockIDGenerator{}
+	server := AggregatorServer{FilmsService: filmService, IDGenerator: generator}
+	server.Router = http.NewServeMux()
+	server.Router.HandleFunc("/api/producer/films/", server.FindFilmsByProducer)
+
+	for _, test := range testTable {
+		t.Run(test.title, func(t *testing.T) {
+			test.mockBehaviour(filmService, test.name)
+			w := httptest.NewRecorder()
+			urlPath := fmt.Sprintf("http://localhost:8080/api/producer/films/?producer=%s",
+				test.name)
+			req := httptest.NewRequest("GET", urlPath, nil)
+			server.Router.ServeHTTP(w, req)
+
+			assert.Equal(t, test.expectedStatusCode, w.Code)
+		})
+	}
 }
