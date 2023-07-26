@@ -8,7 +8,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/stretchr/testify/assert"
-	"log"
 	"math/rand"
 	"testing"
 )
@@ -50,9 +49,7 @@ func TestFilmsRepository_FindAll(t *testing.T) {
 	for _, test := range testTable {
 		if test.status == SUCCESS {
 			_, err := testRepository.Add(context.Background(), test.film)
-			if err != nil {
-				log.Fatalf(err.Error())
-			}
+			assert.Equal(t, nil, err)
 			toBeFound++
 		} else {
 			continue
@@ -83,9 +80,7 @@ func TestFilmsRepository_FindByName(t *testing.T) {
 	)
 
 	_, err := testRepository.Add(context.Background(), *film)
-	if err != nil {
-		log.Fatalf(err.Error())
-	}
+	assert.Equal(t, nil, err)
 	testTable := []struct {
 		title  string
 		status Status
@@ -116,9 +111,7 @@ func TestFilmsRepository_Verify(t *testing.T) {
 	)
 
 	_, err := testRepository.Add(context.Background(), *film)
-	if err != nil {
-		log.Fatalf(err.Error())
-	}
+	assert.Equal(t, nil, err)
 	testTable := []struct {
 		film   db.Film
 		result bool
@@ -155,4 +148,44 @@ func TestFilmsRepository_Verify(t *testing.T) {
 		doesSatisfy := testRepository.Verify(context.Background(), &test.film)
 		assert.Equal(t, test.result, doesSatisfy)
 	}
+}
+
+func TestFilmsRepository_FindFilmsByActor(t *testing.T) {
+	film := db.NewFilm(uuid.New(),
+		"Barbie",
+		&general.Crew{
+			Actors: []*general.Actor{
+				{
+					Person: general.Person{Name: "Margot Robbie", ID: uuid.New(), Birthdate: "1990-03-24", Gender: "f"},
+				},
+			},
+			Producers: []*general.Producer{},
+		},
+		2023,
+		399999.99,
+		"comedy",
+	)
+
+	_, err := testRepository.Add(context.Background(), *film)
+	assert.Equal(t, nil, err)
+
+	testTable := []struct {
+		name string
+		err  error
+	}{
+		{
+			name: "Margot Robbie",
+			err:  nil,
+		},
+		{
+			name: "",
+			err:  pgx.ErrNoRows,
+		},
+	}
+
+	for _, test := range testTable {
+		_, err := testRepository.FindFilmsByActor(context.Background(), test.name)
+		assert.Equal(t, test.err, err)
+	}
+
 }
