@@ -11,6 +11,7 @@ import (
 	mock_service "github.com/e1esm/FilmsAggregator/internal/service/mocks"
 	"github.com/e1esm/FilmsAggregator/utils/uuid/mocks"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 	"net/http"
@@ -209,4 +210,59 @@ func TestAggregatorServer_DeleteFilm(t *testing.T) {
 			assert.Equal(t, apiTest.expectedStatusCode, w.Code)
 		})
 	}
+}
+
+func TestAggregatorServer_FindFilmsByActor(t *testing.T) {
+	type mockBehaviour func(s *mock_service.MockService, name string)
+	testTable := []struct {
+		title              string
+		name               string
+		expectedStatusCode int
+		mockBehaviour      mockBehaviour
+	}{
+		{
+			title:              "Found",
+			name:               "Rami",
+			expectedStatusCode: 200,
+			mockBehaviour: func(s *mock_service.MockService, name string) {
+				s.EXPECT().GetByActor(context.Background(), name).Return([]api.Film{}, nil)
+			},
+		}, {
+			title:              "Bad Request",
+			name:               "",
+			expectedStatusCode: 400,
+			mockBehaviour: func(s *mock_service.MockService, name string) {
+				s.EXPECT().GetByActor(context.Background(), name).Return(nil, nil).AnyTimes()
+			},
+		}, {
+			title: "Not found",
+			name:  "Emilia",
+			mockBehaviour: func(s *mock_service.MockService, name string) {
+				s.EXPECT().GetByActor(context.Background(), name).Return(nil, pgx.ErrNoRows)
+			},
+			expectedStatusCode: 404,
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	filmService := mock_service.NewMockService(ctrl)
+	generator := &mocks.MockIDGenerator{}
+	server := AggregatorServer{FilmsService: filmService, IDGenerator: generator}
+	server.Router = http.NewServeMux()
+	server.Router.HandleFunc("/api/actor/films", server.FindFilmsByActor)
+
+	for _, test := range testTable {
+		t.Run(test.title, func(t *testing.T) {
+			test.mockBehaviour(filmService, test.name)
+			w := httptest.NewRecorder()
+			urlPath := fmt.Sprintf("http://localhost:8080/api/actor/films?actor=%s",
+				test.name)
+			req := httptest.NewRequest("GET", urlPath, nil)
+			server.Router.ServeHTTP(w, req)
+
+			assert.Equal(t, test.expectedStatusCode, w.Code)
+		})
+	}
+
 }

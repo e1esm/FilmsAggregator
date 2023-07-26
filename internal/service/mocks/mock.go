@@ -94,3 +94,33 @@ func (mr *MockServiceMockRecorder) GetAll(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockService)(nil).GetAll), ctx)
 }
+
+// GetByActor mocks base method.
+func (m *MockService) GetByActor(ctx context.Context, name string) ([]api.Film, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByActor", ctx, name)
+	ret0, _ := ret[0].([]api.Film)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByActor indicates an expected call of GetByActor.
+func (mr *MockServiceMockRecorder) GetByActor(ctx, name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByActor", reflect.TypeOf((*MockService)(nil).GetByActor), ctx, name)
+}
+
+// GetByProducer mocks base method.
+func (m *MockService) GetByProducer(ctx context.Context, name string) ([]api.Film, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByProducer", ctx, name)
+	ret0, _ := ret[0].([]api.Film)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByProducer indicates an expected call of GetByProducer.
+func (mr *MockServiceMockRecorder) GetByProducer(ctx, name interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByProducer", reflect.TypeOf((*MockService)(nil).GetByProducer), ctx, name)
+}
