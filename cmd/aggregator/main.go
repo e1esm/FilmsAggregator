@@ -40,6 +40,8 @@ func configureServer(service service.Service, authService service.AuthorizationS
 		WithEndpoint("/api/all/", sb.Server.GetAllFilms).
 		WithEndpoint("/api/actor/films/", sb.Server.FindFilmsByActor).
 		WithEndpoint("/api/producer/films/", sb.Server.FindFilmsByProducer).
+		WithEndpoint("/api/signin/", sb.Server.SignIn).
+		WithEndpoint("/api/signup/", sb.Server.SignUp).
 		WithEndpoint("/swagger/", httpSwagger.WrapHandler).
 		WithFilmsService(service).
 		WithAuthenticationService(authService).

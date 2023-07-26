@@ -15,8 +15,8 @@ postgres:
   password: postgres
   connections: 100
 auth_db:
-  container_name: postgres
-  port: 5431
+  container_name: postgres_auth
+  port: 5432
   user: postgres
   database_name: users
   password: postgres

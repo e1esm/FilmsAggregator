@@ -34,5 +34,5 @@ func encode(film *Film) {
 	if err != nil {
 		film.HashCode = ""
 	}
-	film.HashCode = fmt.Sprintf("%v", md5.Sum(b.Bytes()))
+	film.HashCode = fmt.Sprintf("%x", md5.Sum(b.Bytes()))
 }
