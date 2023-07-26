@@ -19,12 +19,12 @@ type CompleteRepository interface {
 	ScrapperRepository
 	CrewRepository
 	MainRepository
+	Verify(ctx context.Context, film *db.Film) bool
 }
 
 type MainRepository interface {
 	Add(context.Context, db.Film) (db.Film, error)
 	FindByName(ctx context.Context, name string) ([]*db.Film, error)
-	Verify(ctx context.Context, film *db.Film) bool
 	Delete(context.Context, api.DeleteRequest) error
 }
 

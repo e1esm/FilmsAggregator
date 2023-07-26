@@ -71,10 +71,6 @@ func (cr *CacheRepository) FindByName(ctx context.Context, name string) ([]*dbMo
 
 	for i := 0; i < len(received); i++ {
 		films = append(films, received[i].(*dbModel.Film))
-		if err != nil {
-			logger.Logger.Error(err.Error())
-			return nil, err
-		}
 	}
 
 	return films, nil
@@ -89,22 +85,6 @@ func (cr *CacheRepository) Delete(ctx context.Context, request api.DeleteRequest
 		return err
 	}
 	return nil
-}
-
-func (cr *CacheRepository) Verify(ctx context.Context, film *dbModel.Film) bool {
-	alreadyExists := false
-	cr.db.WithContext(ctx)
-	_, err := cr.db.Query(cr.namespace).Where("hashcode", reindexer.EQ, film.HashCode).Exec().FetchOne()
-	switch {
-	case err == reindexer.ErrNotFound:
-		return alreadyExists
-	case err != nil:
-		logger.Logger.Error(err.Error())
-		return alreadyExists
-	default:
-		alreadyExists = true
-		return alreadyExists
-	}
 }
 
 func (cr *CacheRepository) DeleteCachedWithCtx(ctx context.Context) error {

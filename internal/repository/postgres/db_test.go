@@ -15,8 +15,6 @@ import (
 	"time"
 )
 
-var client *docker.Client
-
 var testRepository FilmsRepository
 
 func TestMain(m *testing.M) {
@@ -24,7 +22,6 @@ func TestMain(m *testing.M) {
 	testRepository = FilmsRepository{TransactionManager: NewTransactionManager()}
 
 	pool, err := dockertest.NewPool("")
-	client = pool.Client
 	if err != nil {
 		log.Fatalf("Could not connect to docker: %s", err)
 	}

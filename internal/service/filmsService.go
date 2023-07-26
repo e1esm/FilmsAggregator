@@ -11,6 +11,7 @@ import (
 	"github.com/e1esm/FilmsAggregator/utils/logger"
 	"github.com/e1esm/FilmsAggregator/utils/uuid"
 	"go.uber.org/zap"
+	"log"
 	"strconv"
 	"time"
 )
@@ -52,6 +53,7 @@ func (fs *FilmsService) Add(ctx context.Context, film db.Film) (api.Film, error)
 	film.CacheTime = time.Now()
 	doesExist := fs.Repositories.MainRepo.Verify(ctx, &film)
 	if doesExist {
+		log.Println(AlreadyExistsError)
 		return api.Film{}, AlreadyExistsError
 	}
 	_, err := fs.Repositories.CacheRepo.Add(ctx, film)
