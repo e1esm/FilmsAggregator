@@ -2,11 +2,11 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
 	"github.com/e1esm/FilmsAggregator/internal/models/api"
 	"github.com/e1esm/FilmsAggregator/internal/models/db"
 	"github.com/e1esm/FilmsAggregator/internal/models/general"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -51,7 +51,7 @@ func TestFilmsRepository_Delete(t *testing.T) {
 		},
 		{
 			deleteRequest: api.DeleteRequest{Title: "AAA", Genre: "horror", ReleasedYear: 1987},
-			err:           sql.ErrNoRows,
+			err:           pgx.ErrNoRows,
 			status:        FAIL,
 		},
 	}

@@ -2,12 +2,12 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"github.com/e1esm/FilmsAggregator/internal/models/db"
 	"github.com/e1esm/FilmsAggregator/internal/models/general"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
 	"github.com/jackc/pgtype"
+	"github.com/jackc/pgx/v5"
 	"time"
 )
 
@@ -22,7 +22,7 @@ func (fr *FilmsRepository) Verify(ctx context.Context, film *db.Film) bool {
 	query := "select title from film where hashcode = $1;"
 	err := fr.Pool.QueryRow(ctx, query, film.HashCode).Scan(&title)
 	switch {
-	case err == sql.ErrNoRows:
+	case err == pgx.ErrNoRows:
 		return doesAlreadyExist
 	case err != nil:
 		logger.Logger.Error(err.Error())
@@ -40,13 +40,8 @@ func (fr *FilmsRepository) FindByName(ctx context.Context, name string) ([]*db.F
 	foundFilms := make([]*db.Film, 0)
 	query := "select * from film where title = $1;"
 	rows, err := fr.Pool.Query(ctx, query, name)
-	switch {
-	case err == sql.ErrNoRows:
-		return nil, sql.ErrNoRows
-	case err != nil:
-		return nil, queryError
-	default:
-
+	if err != nil {
+		return nil, err
 	}
 
 	i := -1
@@ -64,9 +59,8 @@ func (fr *FilmsRepository) FindByName(ctx context.Context, name string) ([]*db.F
 	}
 
 	if i == -1 {
-		return nil, sql.ErrNoRows
+		return nil, pgx.ErrNoRows
 	}
-
 	films, err := fr.findCrew(ctx, foundFilms)
 	if err != nil {
 		return nil, err
