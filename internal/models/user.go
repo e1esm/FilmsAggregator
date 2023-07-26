@@ -10,10 +10,10 @@ const (
 )
 
 type User struct {
-	ID       uuid.UUID
-	Username string
-	Password string
-	Role     Role
+	ID       uuid.UUID `json:"id,omitempty"`
+	Username string    `json:"username,omitempty"`
+	Password string    `json:"password,omitempty"`
+	Role     Role      `json:"role,omitempty"`
 }
 
 func NewUser(Username string, Password string, Role Role, ID uuid.UUID) *User {
