@@ -187,5 +187,40 @@ func TestFilmsRepository_FindFilmsByActor(t *testing.T) {
 		_, err := testRepository.FindFilmsByActor(context.Background(), test.name)
 		assert.Equal(t, test.err, err)
 	}
+}
 
+func TestFilmsRepository_FindFilmsByProducer(t *testing.T) {
+	film := db.NewFilm(uuid.New(),
+		"Oppenheimer",
+		&general.Crew{
+			Actors: []*general.Actor{},
+			Producers: []*general.Producer{
+				{Person: general.Person{Name: "Christopher Nolan", Birthdate: "1970-07-30", Gender: "m", ID: uuid.New()}},
+			},
+		},
+		2023,
+		400000,
+		"biography",
+	)
+	_, err := testRepository.Add(context.Background(), *film)
+	assert.Equal(t, nil, err)
+
+	testTable := []struct {
+		name string
+		err  error
+	}{
+		{
+			name: "Christopher Nolan",
+			err:  nil,
+		},
+		{
+			name: "",
+			err:  pgx.ErrNoRows,
+		},
+	}
+
+	for _, test := range testTable {
+		_, err = testRepository.FindFilmsByProducer(context.Background(), test.name)
+		assert.Equal(t, test.err, err)
+	}
 }
