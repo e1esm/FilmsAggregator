@@ -58,7 +58,7 @@ func (fr *FilmsRepository) FindByName(ctx context.Context, name string) ([]*db.F
 		foundFilms[i].Crew.Producers = make([]*general.Producer, 0)
 	}
 
-	if i == -1 {
+	if i == -1 && rows.Scan() != nil {
 		return nil, pgx.ErrNoRows
 	}
 	films, err := fr.findCrew(ctx, foundFilms)
