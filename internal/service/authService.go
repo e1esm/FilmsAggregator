@@ -3,9 +3,11 @@ package service
 import (
 	"context"
 	"crypto/sha256"
+	"errors"
 	"fmt"
 	"github.com/e1esm/FilmsAggregator/internal/auth"
 	"github.com/e1esm/FilmsAggregator/internal/repository/authentication"
+	"github.com/e1esm/FilmsAggregator/utils/logger"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"time"
@@ -19,12 +21,14 @@ const (
 
 type TokenClaims struct {
 	jwt.StandardClaims
-	UserID uuid.UUID `json:"user_id"`
+	UserID   uuid.UUID `json:"user_id"`
+	UserRole string    `json:"user_role"`
 }
 
 type AuthorizationService interface {
 	CreateUser(ctx context.Context, user auth.User) (auth.User, error)
 	GenerateToken(ctx context.Context, username string, password string) (string, error)
+	ParseToken(ctx context.Context, token string) (uuid.UUID, string, error)
 }
 
 type AuthService struct {
@@ -52,14 +56,34 @@ func (as *AuthService) GenerateToken(ctx context.Context, username string, passw
 	if err != nil {
 		return "", err
 	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &TokenClaims{jwt.StandardClaims{
 		ExpiresAt: time.Now().Add(tokenTTl).Unix(),
 		IssuedAt:  time.Now().Unix(),
 	},
 		user.ID,
+		string(user.Role),
 	})
 
 	return token.SignedString([]byte(signingKey))
+}
+
+func (as *AuthService) ParseToken(ctx context.Context, token string) (uuid.UUID, string, error) {
+	receivedToken, err := jwt.ParseWithClaims(token, &TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("invalid signing method")
+		}
+		return []byte(signingKey), nil
+	})
+	if err != nil {
+		logger.Logger.Error(err.Error())
+		return uuid.UUID{}, "", err
+	}
+	claims, ok := receivedToken.Claims.(*TokenClaims)
+	if !ok {
+		return uuid.UUID{}, "", errors.New("token claims are not of type *tokenClaims")
+	}
+	return claims.UserID, claims.UserRole, nil
 }
 
 func generateHashForThePassword(password string) string {

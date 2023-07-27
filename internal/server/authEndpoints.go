@@ -7,6 +7,7 @@ import (
 	"github.com/e1esm/FilmsAggregator/utils/logger"
 	"io"
 	"net/http"
+	"time"
 )
 
 func (s *AggregatorServer) SignUp(w http.ResponseWriter, r *http.Request) {
@@ -79,6 +80,11 @@ func (s *AggregatorServer) SignIn(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	cookie := http.Cookie{Name: "jwt_token",
+		Value: token, Expires: time.Now().Add(12 * time.Hour), HttpOnly: true, Path: "/"}
+
+	http.SetCookie(w, &cookie)
 	w.Header().Set("Authorization", token)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

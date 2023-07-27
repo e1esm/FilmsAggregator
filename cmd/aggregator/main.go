@@ -34,9 +34,9 @@ func main() {
 func configureServer(service service.Service, authService service.AuthorizationService) *server.AggregatorServer {
 	sb := server.NewBuilder()
 	aggServ := sb.WithRouter(http.NewServeMux()).
-		WithEndpoint("/api/add/", sb.Server.AddFilm).
+		WithProtectedEndpoint("/api/add/", sb.Server.UserIdentity(http.HandlerFunc(sb.Server.AddFilm))).
 		WithEndpoint("/api/get/", sb.Server.GetFilms).
-		WithEndpoint("/api/delete/", sb.Server.DeleteFilm).
+		WithProtectedEndpoint("/api/delete/", sb.Server.UserIdentity(http.HandlerFunc(sb.Server.DeleteFilm))).
 		WithEndpoint("/api/all/", sb.Server.GetAllFilms).
 		WithEndpoint("/api/actor/films/", sb.Server.FindFilmsByActor).
 		WithEndpoint("/api/producer/films/", sb.Server.FindFilmsByProducer).

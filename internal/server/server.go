@@ -32,6 +32,11 @@ func (b *Builder) WithEndpoint(endpoint string, handlerFunc http.HandlerFunc) *B
 	return b
 }
 
+func (b *Builder) WithProtectedEndpoint(endpoint string, handler http.Handler) *Builder {
+	b.Server.Router.Handle(endpoint, handler)
+	return b
+}
+
 func (b *Builder) WithRouter(mux *http.ServeMux) *Builder {
 	b.Server.Router = mux
 	return b
