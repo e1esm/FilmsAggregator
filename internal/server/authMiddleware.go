@@ -20,15 +20,6 @@ func (s *AggregatorServer) UserIdentity(next http.Handler) http.Handler {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-		/*
-			headerParts := strings.Split(cookie.Value, " ")
-			if len(headerParts) != 2 {
-				logger.Logger.Error(err.Error())
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-		*/
 
 		userId, userRole, err := s.AuthService.ParseToken(r.Context(), cookie.Value)
 		if err != nil {
@@ -42,6 +33,7 @@ func (s *AggregatorServer) UserIdentity(next http.Handler) http.Handler {
 		}
 
 		w.Header().Set("userID", fmt.Sprintf("%v", userId))
+		w.Header().Set("userRole", userRole)
 		next.ServeHTTP(w, r)
 	})
 }

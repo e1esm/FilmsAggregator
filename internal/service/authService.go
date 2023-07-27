@@ -10,14 +10,33 @@ import (
 	"github.com/e1esm/FilmsAggregator/utils/logger"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
+	"github.com/joho/godotenv"
+	"go.uber.org/zap"
+	"os"
 	"time"
 )
 
-const (
-	salt       = "rknfgnrgnrnkgnrgnrgn"
-	signingKey = "grglkrgnrklr;gq;eremr'gmrgr"
-	tokenTTl   = 12 * time.Hour
+var (
+	salt       string
+	signingKey string
+	TokenTTL   time.Duration
 )
+
+func init() {
+	err := godotenv.Load("auth.env")
+	if err != nil {
+		logger.Logger.Fatal(err.Error())
+	}
+	TokenTTL, err = time.ParseDuration(os.Getenv("TOKEN_TTL"))
+	if err != nil {
+		TokenTTL = 3600000000000
+	}
+	salt = os.Getenv("SALT")
+	signingKey = os.Getenv("SIGNING_KEY")
+	logger.Logger.Info("Auth Variables", zap.String("salt", salt),
+		zap.String("signingKey", signingKey),
+		zap.String("tokenTTL", fmt.Sprintf("%v", TokenTTL)))
+}
 
 type TokenClaims struct {
 	jwt.StandardClaims
@@ -58,7 +77,7 @@ func (as *AuthService) GenerateToken(ctx context.Context, username string, passw
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &TokenClaims{jwt.StandardClaims{
-		ExpiresAt: time.Now().Add(tokenTTl).Unix(),
+		ExpiresAt: time.Now().Add(TokenTTL).Unix(),
 		IssuedAt:  time.Now().Unix(),
 	},
 		user.ID,

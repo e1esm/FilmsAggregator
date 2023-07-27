@@ -12,6 +12,7 @@ WORKDIR /
 
 COPY --from=builder /aggregator /aggregator
 COPY --from=builder /app/conf.yml /conf.yml
+COPY --from=builder /app/auth.env /auth.env
 
 EXPOSE 8080
 

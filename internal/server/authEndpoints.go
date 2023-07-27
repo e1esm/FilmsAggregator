@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/e1esm/FilmsAggregator/internal/auth"
+	"github.com/e1esm/FilmsAggregator/internal/service"
 	"github.com/e1esm/FilmsAggregator/utils/logger"
 	"io"
 	"net/http"
@@ -80,9 +81,9 @@ func (s *AggregatorServer) SignIn(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
+	expirationTIme := time.Now().Add(service.TokenTTL)
 	cookie := http.Cookie{Name: "jwt_token",
-		Value: token, Expires: time.Now().Add(12 * time.Hour), HttpOnly: true, Path: "/"}
+		Value: token, Expires: expirationTIme, HttpOnly: true, Path: "/"}
 
 	http.SetCookie(w, &cookie)
 	w.Header().Set("Authorization", token)
