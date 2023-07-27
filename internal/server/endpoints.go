@@ -119,7 +119,7 @@ func (s *AggregatorServer) GetFilms(w http.ResponseWriter, r *http.Request) {
 // @Security JWT
 // @Param title query string true "Film title"
 // @Param genre query string true "Film genre"
-// @Param released_year query string true "Film release date"
+// @Param released_year query int true "Film release date"
 // @Produce json
 // @Success 200 {object} api.DeleteRequest
 // @Failure 400
