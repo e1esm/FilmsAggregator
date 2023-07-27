@@ -54,19 +54,19 @@ make build_dockerize
 
 ## Interface
 - ### Interface of the Swagger UI for this project:
-!["Interface of the Swagger UI](/Users/elesm/GolandProjects/FilmsAggregator/screenshots/swagger-interface.png)
+!["Interface of the Swagger UI](./screenshots/swagger-interface.png)
 - ### List all the films in the database:
-- !["Listing of all the films available in the database](/Users/elesm/GolandProjects/FilmsAggregator/screenshots/get-all.png)
+!["Listing of all the films available in the database](./screenshots/get-all.png)
 - ### List all the films an actor was shot in:
-- !["Listing of received films](/Users/elesm/GolandProjects/FilmsAggregator/screenshots/filter-by-actor.png)
+!["Listing of received films](/Users/elesm/GolandProjects/FilmsAggregator/screenshots/filter-by-actor.png)
 - ### Sign up form (right now clients can assign their role themselves):
-- !["Sign up form](./screenshots/signup-example.png)
+!["Sign up form](./screenshots/signup-example.png)
 - ### Sign in form
-- !["Sign in form](./screenshots/signin-example.png)
+!["Sign in form](./screenshots/signin-example.png)
 - ### Delete film:
-- !["Delete film](.//screenshots/delete-film-example.png)
+!["Delete film](./screenshots/delete-film-example.png)
 - ### Add film:
-- !["Add film](./screenshots/add-film-example.png)
+!["Add film](./screenshots/add-film-example.png)
 
 
 ## Author
