@@ -58,7 +58,7 @@ make build_dockerize
 - ### List all the films in the database:
 !["Listing of all the films available in the database](./screenshots/get-all.png)
 - ### List all the films an actor was shot in:
-!["Listing of received films](/Users/elesm/GolandProjects/FilmsAggregator/screenshots/filter-by-actor.png)
+!["Listing of received films](./screenshots/filter-by-actor.png)
 - ### Sign up form (right now clients can assign their role themselves):
 !["Sign up form](./screenshots/signup-example.png)
 - ### Sign in form
