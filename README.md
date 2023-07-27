@@ -60,13 +60,13 @@ make build_dockerize
 - ### List all the films an actor was shot in:
 - !["Listing of received films](/Users/elesm/GolandProjects/FilmsAggregator/screenshots/filter-by-actor.png)
 - ### Sign up form (right now clients can assign their role themselves):
-- !["Sign up form](/Users/elesm/GolandProjects/FilmsAggregator/screenshots/signup-example.png)
+- !["Sign up form](./screenshots/signup-example.png)
 - ### Sign in form
-- !["Sign in form](/Users/elesm/GolandProjects/FilmsAggregator/screenshots/signin-example.png)
+- !["Sign in form](./screenshots/signin-example.png)
 - ### Delete film:
-- !["Delete film](/Users/elesm/GolandProjects/FilmsAggregator/screenshots/delete-film-example.png)
+- !["Delete film](.//screenshots/delete-film-example.png)
 - ### Add film:
-- !["Add film](/Users/elesm/GolandProjects/FilmsAggregator/screenshots/add-film-example.png)
+- !["Add film](./screenshots/add-film-example.png)
 
 
 ## Author
