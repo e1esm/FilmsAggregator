@@ -22,6 +22,9 @@ import (
 // @description API Server for Films Aggregator application
 // @host localhost:8080
 // @BasePath /
+// @securityDefinitions.apikey JWT
+// @in cookie
+// @name jwt_token
 func main() {
 	cfg := config.NewConfig()
 	currServer := configureServer(configureService(cfg, &uuid.UUIDGenerator{}), service.NewAuthService(authentication.NewAuthRepository(*cfg)))

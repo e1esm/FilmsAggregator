@@ -34,6 +34,47 @@ definitions:
         description: Title of the show
         type: string
     type: object
+  auth.Role:
+    description: Value that represents user's right in the service.
+    enum:
+    - admin
+    - guest
+    type: string
+    x-enum-comments:
+      ADMIN: This role provides full access to the API
+      GUEST: This role provides restricted access to the API - client gets only methods
+        for observation.
+    x-enum-varnames:
+    - ADMIN
+    - GUEST
+  auth.SignInRequest:
+    description: Model that represents user's input to sign in the service provided
+    properties:
+      password:
+        description: Password of the user
+        type: string
+      username:
+        description: Username of the user
+        type: string
+    type: object
+  auth.User:
+    description: Model that represents user's model, also the content of a body in
+      the request to be signed up.
+    properties:
+      id:
+        description: id of the user that's server-side generated
+        type: string
+      password:
+        description: password of the client that is hashed on the server side
+        type: string
+      role:
+        allOf:
+        - $ref: '#/definitions/auth.Role'
+        description: role of the user. Either guest or admin.
+      username:
+        description: username of the client. Must be unique
+        type: string
+    type: object
   general.Actor:
     description: Actor that took a part in the show
     properties:
@@ -132,6 +173,8 @@ paths:
           description: Method Not Allowed
         "500":
           description: Internal Server Error
+      security:
+      - JWT: []
       summary: Add film to the DB
       tags:
       - film
@@ -189,6 +232,8 @@ paths:
           description: Method Not Allowed
         "500":
           description: Internal Server Error
+      security:
+      - JWT: []
       summary: Delete film
       tags:
       - film
@@ -251,4 +296,65 @@ paths:
       summary: Films, which were produced by the specified person
       tags:
       - producer
+  /api/signin/:
+    post:
+      consumes:
+      - application/json
+      description: Process authentication
+      parameters:
+      - description: Sign in model
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/auth.SignInRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Server Error
+      summary: Sign in the service
+      tags:
+      - user
+  /api/signup/:
+    post:
+      consumes:
+      - application/json
+      description: Create an account in the service
+      parameters:
+      - description: user model
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/auth.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.User'
+        "400":
+          description: Bad Request
+        "405":
+          description: Method Not Allowed
+        "500":
+          description: Internal Server Error
+      summary: Sign up to the service
+      tags:
+      - user
+securityDefinitions:
+  JWT:
+    in: cookie
+    name: jwt_token
+    type: apiKey
 swagger: "2.0"

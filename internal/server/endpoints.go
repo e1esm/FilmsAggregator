@@ -19,6 +19,7 @@ import (
 // @Summary Add film to the DB
 // @Description Based on the body of POST request add film to the DB
 // @Tags film
+// @Security JWT
 // @Accept json
 // @Produce json
 // @Param film body api.Film true "film model"
@@ -115,6 +116,7 @@ func (s *AggregatorServer) GetFilms(w http.ResponseWriter, r *http.Request) {
 // @Summary Delete film
 // @Description Delete film from both cache and main repositories based on the user's provided filters
 // @Tags film
+// @Security JWT
 // @Param title query string true "Film title"
 // @Param genre query string true "Film genre"
 // @Param released_year query string true "Film release date"

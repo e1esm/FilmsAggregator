@@ -62,6 +62,11 @@ const docTemplate = `{
         },
         "/api/add/": {
             "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
                 "description": "Based on the body of POST request add film to the DB",
                 "consumes": [
                     "application/json"
@@ -137,6 +142,11 @@ const docTemplate = `{
         },
         "/api/delete/": {
             "delete": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
                 "description": "Delete film from both cache and main repositories based on the user's provided filters",
                 "produces": [
                     "application/json"
@@ -274,6 +284,92 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/signin/": {
+            "post": {
+                "description": "Process authentication",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Sign in the service",
+                "parameters": [
+                    {
+                        "description": "Sign in model",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.SignInRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/api/signup/": {
+            "post": {
+                "description": "Create an account in the service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Sign up to the service",
+                "parameters": [
+                    {
+                        "description": "user model",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "405": {
+                        "description": "Method Not Allowed"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -321,6 +417,62 @@ const docTemplate = `{
                 },
                 "title": {
                     "description": "Title of the show",
+                    "type": "string"
+                }
+            }
+        },
+        "auth.Role": {
+            "description": "Value that represents user's right in the service.",
+            "type": "string",
+            "enum": [
+                "admin",
+                "guest"
+            ],
+            "x-enum-comments": {
+                "ADMIN": "This role provides full access to the API",
+                "GUEST": "This role provides restricted access to the API - client gets only methods for observation."
+            },
+            "x-enum-varnames": [
+                "ADMIN",
+                "GUEST"
+            ]
+        },
+        "auth.SignInRequest": {
+            "description": "Model that represents user's input to sign in the service provided",
+            "type": "object",
+            "properties": {
+                "password": {
+                    "description": "Password of the user",
+                    "type": "string"
+                },
+                "username": {
+                    "description": "Username of the user",
+                    "type": "string"
+                }
+            }
+        },
+        "auth.User": {
+            "description": "Model that represents user's model, also the content of a body in the request to be signed up.",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "id of the user that's server-side generated",
+                    "type": "string"
+                },
+                "password": {
+                    "description": "password of the client that is hashed on the server side",
+                    "type": "string"
+                },
+                "role": {
+                    "description": "role of the user. Either guest or admin.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/auth.Role"
+                        }
+                    ]
+                },
+                "username": {
+                    "description": "username of the client. Must be unique",
                     "type": "string"
                 }
             }
@@ -378,6 +530,13 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "JWT": {
+            "type": "apiKey",
+            "name": "jwt_token",
+            "in": "cookie"
         }
     }
 }`

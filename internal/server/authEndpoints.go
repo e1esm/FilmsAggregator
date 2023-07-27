@@ -11,6 +11,18 @@ import (
 	"time"
 )
 
+// SignUp godoc
+// @Summary Sign up to the service
+// @Description Create an account in the service
+// @Tags user
+// @Accept json
+// @Produce json
+// @Param user body auth.User true "user model"
+// @Success 200 {object} auth.User
+// @Failure 405
+// @Failure 400
+// @Failure 500
+// @Router /api/signup/ [post]
 func (s *AggregatorServer) SignUp(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodPost {
@@ -49,6 +61,18 @@ func (s *AggregatorServer) SignUp(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// SignIn godoc
+// @Summary Sign in the service
+// @Description Process authentication
+// @Tags user
+// @Accept json
+// @Produce json
+// @Param user body auth.SignInRequest true "Sign in model"
+// @Success 200 {object} string
+// @Failure 405
+// @Failure 400
+// @Failure 500
+// @Router /api/signin/ [post]
 func (s *AggregatorServer) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodPost {
@@ -86,7 +110,6 @@ func (s *AggregatorServer) SignIn(w http.ResponseWriter, r *http.Request) {
 		Value: token, Expires: expirationTIme, HttpOnly: true, Path: "/"}
 
 	http.SetCookie(w, &cookie)
-	w.Header().Set("Authorization", token)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(bytes)
